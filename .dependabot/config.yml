@@ -3,5 +3,9 @@ version: 1
 update_configs:
 
   - package_manager: "terraform"
-    directory: "/"
+    directory: "/modules/roles"
+    update_schedule: "daily"
+
+  - package_manager: "terraform"
+    directory: "/modules/users"
     update_schedule: "daily"
