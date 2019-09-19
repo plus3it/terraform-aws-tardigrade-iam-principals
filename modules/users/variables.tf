@@ -1,6 +1,6 @@
 variable "template_paths" {
   description = "Paths to the directories containing the templates for IAM policies and trusts"
-  type        = "list"
+  type        = list(string)
 }
 
 variable "create_users" {
@@ -9,8 +9,8 @@ variable "create_users" {
 }
 
 variable "users" {
-  description = "Schema list of users, consisting of user name, policy path, and permission boundary, policy name, and policy path"
-  type        = "list"
+  description = "Schema list of users, consisting of `name`, `policy_path`, and `permission_boundary`, `policy_name`, and `inline_policy`"
+  type        = list
   default     = []
 }
 
@@ -21,12 +21,13 @@ variable "create_policies" {
 
 variable "template_vars" {
   description = "Map of input variables for IAM trust and policy templates"
-  type        = "map"
+  type        = map(string)
   default     = {}
 }
 
 variable "tags" {
   description = "Map of tags to apply to the IAM roles"
-  type        = "map"
+  type        = map(string)
   default     = {}
 }
+
