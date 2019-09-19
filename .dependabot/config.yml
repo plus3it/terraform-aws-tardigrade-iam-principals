@@ -9,3 +9,23 @@ update_configs:
   - package_manager: "terraform"
     directory: "/modules/users"
     update_schedule: "daily"
+
+  - package_manager: "terraform"
+    directory: "/tests/create_users"
+    update_schedule: "daily"
+
+  - package_manager: "terraform"
+    directory: "/tests/create_roles"
+    update_schedule: "daily"
+
+  - package_manager: "terraform"
+    directory: "/tests/no_create_roles"
+    update_schedule: "daily"
+
+  - package_manager: "terraform"
+    directory: "/tests/no_create_users"
+    update_schedule: "daily"
+
+  - package_manager: "go:modules"
+    directory: "/tests"
+    update_schedule: "daily"
