@@ -5,6 +5,7 @@ variable "template_paths" {
 
 variable "create_users" {
   description = "Controls whether an IAM user will be created"
+  type        = bool
   default     = true
 }
 
@@ -16,6 +17,7 @@ variable "users" {
 
 variable "create_policies" {
   description = "Controls whether to create IAM policies"
+  type        = bool
   default     = true
 }
 
