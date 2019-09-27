@@ -1,15 +1,18 @@
 variable "create_roles" {
   description = "Controls whether to create IAM roles"
+  type        = bool
   default     = true
 }
 
 variable "create_policies" {
   description = "Controls whether to create IAM policies; when false, `policy` must be an ARN"
+  type        = bool
   default     = true
 }
 
 variable "create_instance_profiles" {
   description = "Controls whether to create IAM instance profiles"
+  type        = bool
   default     = false
 }
 
