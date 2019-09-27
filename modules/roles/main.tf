@@ -96,7 +96,7 @@ resource "aws_iam_role_policy_attachment" "created" {
 
 # attach pre-existing IAM policy ARNs to the IAM role
 resource "aws_iam_role_policy_attachment" "preexisting" {
-  count = var.create_roles && false == var.create_policies ? length(var.roles) : 0
+  count = var.create_roles && !var.create_policies ? length(var.roles) : 0
 
   policy_arn = var.roles[count.index]["policy"]
   role       = aws_iam_role.this[count.index].id
