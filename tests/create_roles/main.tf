@@ -19,7 +19,7 @@ module "create_roles" {
 
   create_roles             = true
   create_instance_profiles = true
-  template_paths           = ["${path.module}/templates"]
+  template_paths           = ["${path.module}/templates/"]
   template_vars = {
     "trusted_account" = data.aws_caller_identity.current.account_id
   }
