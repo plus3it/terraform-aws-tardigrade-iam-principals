@@ -25,13 +25,6 @@ data "template_file" "policies" {
   vars     = var.template_vars
 }
 
-# define the IAM policy document
-data "aws_iam_policy_document" "policies" {
-  count = var.create_roles && var.create_policies ? length(var.roles) : 0
-
-  source_json = data.template_file.policies[count.index].rendered
-}
-
 # variable assignment within the inline policies
 data "template_file" "inline_policies" {
   count = var.create_roles && var.create_policies ? length(var.roles) : 0
@@ -54,13 +47,6 @@ data "template_file" "trusts" {
   vars     = var.template_vars
 }
 
-# define the IAM role trust policy document
-data "aws_iam_policy_document" "trusts" {
-  count = var.create_roles ? length(var.roles) : 0
-
-  source_json = data.template_file.trusts[count.index].rendered
-}
-
 ################################
 #
 # IAM role creation
@@ -72,7 +58,7 @@ resource "aws_iam_role" "this" {
   count = var.create_roles ? length(var.roles) : 0
 
   name                  = data.external.handler[count.index].result["name"]
-  assume_role_policy    = data.aws_iam_policy_document.trusts[count.index].json
+  assume_role_policy    = data.template_file.trusts[count.index].rendered
   force_detach_policies = true
   max_session_duration  = var.max_session_duration
   tags                  = var.tags
@@ -83,7 +69,7 @@ resource "aws_iam_policy" "this" {
   count = var.create_roles && var.create_policies ? length(var.roles) : 0
 
   name   = data.external.handler[count.index].result["name"]
-  policy = data.aws_iam_policy_document.policies[count.index].json
+  policy = data.template_file.policies[count.index].rendered
 }
 
 # attach created IAM policies to the IAM role
@@ -124,4 +110,3 @@ resource "aws_iam_instance_profile" "this" {
   name = data.external.handler[count.index].result["name"]
   role = aws_iam_role.this[count.index].id
 }
-
