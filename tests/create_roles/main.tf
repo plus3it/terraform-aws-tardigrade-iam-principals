@@ -4,11 +4,11 @@ provider aws {
 
 data "aws_caller_identity" "current" {}
 
-resource "random_string" "this" {
-  length  = 6
-  upper   = false
-  special = false
-  number  = false
+data "terraform_remote_state" "prereq" {
+  backend = "local"
+  config = {
+    path = "prereq/terraform.tfstate"
+  }
 }
 
 module "create_roles" {
@@ -26,15 +26,19 @@ module "create_roles" {
 
   roles = [
     {
-      name          = "tardigrade-role-alpha-${random_string.this.result}"
+      name          = "tardigrade-role-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
       policy        = "policies/alpha.template.json"
       inline_policy = "inline_policies/alpha.template.json"
       trust         = "trusts/alpha.template.json"
     },
     {
-      name   = "tardigrade-role-beta-${random_string.this.result}"
+      name   = "tardigrade-role-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
       policy = "policies/beta.template.json"
       trust  = "trusts/beta.template.json"
     }
   ]
+}
+
+output "create_roles" {
+  value = module.create_roles
 }
