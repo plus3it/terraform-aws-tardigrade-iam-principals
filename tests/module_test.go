@@ -18,7 +18,7 @@ func TestModule(t *testing.T) {
 
 	for _, f := range files {
 		// look for directories with test cases in it
-		if f.IsDir() && f.Name() != "vendor" {
+		if f.IsDir() && f.Name() != "vendor" && f.Name() != "templates" {
 			t.Run(f.Name(), func(t *testing.T) {
 				// check if a prereq directory exists
 				prereqDir := f.Name() + "/prereq/"

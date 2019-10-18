@@ -19,7 +19,7 @@ module "create_users" {
 
   create_users    = true
   create_policies = true
-  template_paths  = ["${path.module}/templates"]
+  template_paths  = ["${path.module}/../templates/"]
   template_vars = {
     "trusted_account" = data.aws_caller_identity.current.account_id
   }
