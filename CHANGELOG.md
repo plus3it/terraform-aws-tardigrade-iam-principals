@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 *   Creates an inline policy _only_ if the `inline_policy` key is specified. (Previously,
     an inline policy was always created, and was a duplicate of `policy` if `inline_policy`
     was absent.)
+*   Makes `path` an optional key for the users module
 
 ### 1.0.3
 

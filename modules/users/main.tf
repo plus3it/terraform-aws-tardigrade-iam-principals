@@ -45,7 +45,7 @@ resource "aws_iam_user" "this" {
   for_each = var.create_users ? local.users_map : {}
 
   name = data.external.handler[each.key].result["name"]
-  path = data.external.handler[each.key].result["path"]
+  path = lookup(data.external.handler[each.key].result, "path", null)
   tags = var.tags
 }
 
