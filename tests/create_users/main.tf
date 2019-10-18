@@ -40,6 +40,9 @@ module "create_users" {
       name          = "tardigrade-user-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
       inline_policy = "inline_policies/template.json"
       path          = "/"
+    },
+    {
+      name = "tardigrade-role-delta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
     }
   ]
 }

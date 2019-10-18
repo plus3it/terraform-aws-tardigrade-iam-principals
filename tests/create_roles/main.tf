@@ -40,6 +40,10 @@ module "create_roles" {
       name          = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
       inline_policy = "inline_policies/template.json"
       trust         = "trusts/template.json"
+    },
+    {
+      name          = "tardigrade-role-delta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      trust         = "trusts/template.json"
     }
   ]
 }
