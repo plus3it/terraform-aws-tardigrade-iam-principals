@@ -10,7 +10,7 @@ variable "create_users" {
 }
 
 variable "users" {
-  description = "Schema list of users, consisting of `name`, `policy_path`, and `permission_boundary`, `policy_name`, and `inline_policy`"
+  description = "Schema list of users, consisting of `name`, `path` (OPTIONAL), `policy` template (OPTIONAL), and `inline_policy` template (OPTIONAL)"
   type        = list
   default     = []
 }

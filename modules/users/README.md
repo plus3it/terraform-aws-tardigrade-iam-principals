@@ -1,3 +1,7 @@
+# terraform-aws-tardigrade-iam-principals
+
+Terraform module to create IAM users
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -7,4 +11,12 @@
 | tags | Map of tags to apply to the IAM roles | map(string) | `<map>` | no |
 | template\_paths | Paths to the directories containing the templates for IAM policies and trusts | list(string) | n/a | yes |
 | template\_vars | Map of input variables for IAM trust and policy templates | map(string) | `<map>` | no |
-| users | Schema list of users, consisting of `name`, `policy_path`, `permission_boundary`, `policy_name`, and `inline_policy` | list | `<list>` | no |
+| users | Schema list of users, consisting of `name`, `path` (OPTIONAL), `policy` template (OPTIONAL), and `inline_policy` template (OPTIONAL) | list | `<list>` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| user\_arns | Returns a map of user names and user arns |
+| user\_unique\_ids | Returns a map of user names and user unique ids |
+

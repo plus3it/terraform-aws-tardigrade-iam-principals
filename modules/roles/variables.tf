@@ -35,7 +35,7 @@ variable "template_vars" {
 }
 
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of name, policy template, and trust template"
+  description = "Schema list of IAM roles, consisting of `name`, `trust`, `policy` template (OPTIONAL), and `trust` template (OPTIONAL)"
   type        = list
   default     = []
 }
