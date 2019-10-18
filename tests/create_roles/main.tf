@@ -27,14 +27,19 @@ module "create_roles" {
   roles = [
     {
       name          = "tardigrade-role-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      policy        = "policies/alpha.template.json"
-      inline_policy = "inline_policies/alpha.template.json"
-      trust         = "trusts/alpha.template.json"
+      policy        = "policies/template.json"
+      inline_policy = "inline_policies/template.json"
+      trust         = "trusts/template.json"
     },
     {
       name   = "tardigrade-role-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      policy = "policies/beta.template.json"
-      trust  = "trusts/beta.template.json"
+      policy = "policies/template.json"
+      trust  = "trusts/template.json"
+    },
+    {
+      name          = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      inline_policy = "inline_policies/template.json"
+      trust         = "trusts/template.json"
     }
   ]
 }

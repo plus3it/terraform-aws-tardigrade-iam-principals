@@ -21,7 +21,7 @@ data "external" "handler" {
 
 # variable assignment within the policies
 data "template_file" "policies" {
-  for_each = var.create_roles && var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
 
   template = base64decode(data.external.handler[each.key].result["policy"])
   vars     = var.template_vars
@@ -29,7 +29,7 @@ data "template_file" "policies" {
 
 # variable assignment within the inline policies
 data "template_file" "inline_policies" {
-  for_each = var.create_roles && var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "inline_policy", null) != null }
 
   template = base64decode(data.external.handler[each.key].result["inline_policy"])
   vars     = var.template_vars
@@ -68,7 +68,7 @@ resource "aws_iam_role" "this" {
 
 # create the role policy
 resource "aws_iam_policy" "this" {
-  for_each = var.create_roles && var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
 
   name   = data.external.handler[each.key].result["name"]
   policy = data.template_file.policies[each.key].rendered
@@ -76,7 +76,7 @@ resource "aws_iam_policy" "this" {
 
 # attach created IAM policies to the IAM role
 resource "aws_iam_role_policy_attachment" "created" {
-  for_each = var.create_roles && var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
 
   policy_arn = aws_iam_policy.this[each.key].arn
   role       = aws_iam_role.this[each.key].id
@@ -84,7 +84,7 @@ resource "aws_iam_role_policy_attachment" "created" {
 
 # attach pre-existing IAM policy ARNs to the IAM role
 resource "aws_iam_role_policy_attachment" "preexisting" {
-  for_each = var.create_roles && !var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && ! var.create_policies && lookup(role, "policy", null) != null }
 
   policy_arn = var.roles[each.key]["policy"]
   role       = aws_iam_role.this[each.key].id
@@ -92,7 +92,7 @@ resource "aws_iam_role_policy_attachment" "preexisting" {
 
 # create inline policy for IAM role where inline policy presents
 resource "aws_iam_role_policy" "this" {
-  for_each = var.create_roles && var.create_policies ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "inline_policy", null) != null }
 
   name   = data.external.handler[each.key].result["name"]
   role   = aws_iam_role.this[each.key].id
