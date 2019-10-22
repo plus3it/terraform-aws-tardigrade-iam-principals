@@ -4,11 +4,11 @@ provider aws {
 
 data "aws_caller_identity" "current" {}
 
-resource "random_string" "this" {
-  length  = 6
-  upper   = false
-  special = false
-  number  = false
+data "terraform_remote_state" "prereq" {
+  backend = "local"
+  config = {
+    path = "prereq/terraform.tfstate"
+  }
 }
 
 module "create_roles" {
@@ -19,22 +19,35 @@ module "create_roles" {
 
   create_roles             = true
   create_instance_profiles = true
-  template_paths           = ["${path.module}/templates/"]
+  template_paths           = ["${path.module}/../templates/"]
   template_vars = {
     "trusted_account" = data.aws_caller_identity.current.account_id
   }
 
   roles = [
     {
-      name          = "tardigrade-role-alpha-${random_string.this.result}"
-      policy        = "policies/alpha.template.json"
-      inline_policy = "inline_policies/alpha.template.json"
-      trust         = "trusts/alpha.template.json"
+      name          = "tardigrade-role-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      policy        = "policies/template.json"
+      inline_policy = "inline_policies/template.json"
+      trust         = "trusts/template.json"
     },
     {
-      name   = "tardigrade-role-beta-${random_string.this.result}"
-      policy = "policies/beta.template.json"
-      trust  = "trusts/beta.template.json"
+      name   = "tardigrade-role-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      policy = "policies/template.json"
+      trust  = "trusts/template.json"
+    },
+    {
+      name          = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      inline_policy = "inline_policies/template.json"
+      trust         = "trusts/template.json"
+    },
+    {
+      name          = "tardigrade-role-delta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      trust         = "trusts/template.json"
     }
   ]
+}
+
+output "create_roles" {
+  value = module.create_roles
 }

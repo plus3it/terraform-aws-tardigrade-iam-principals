@@ -6,7 +6,7 @@
             ],
             "Effect": "Allow",
             "Resource": "*",
-            "Sid": "AllowEC2Temp"
+            "Sid": "PolicyBase"
         }
     ],
     "Version": "2012-10-17"

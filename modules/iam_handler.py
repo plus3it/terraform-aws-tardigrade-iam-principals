@@ -81,7 +81,7 @@ def _merge_iam_policy_doc(doc1, doc2):
     return doc1
 
 
-def main(name, policy, template_paths, trust="", inline_policy="", **kwargs):
+def main(name, template_paths, policy="", trust="", inline_policy="", **kwargs):
     """Merge policies and trusts for all template paths."""
     iam_policy_doc = {
         'Statement': []
