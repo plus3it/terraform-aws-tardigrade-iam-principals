@@ -1,13 +1,10 @@
-"""IAM policy and role Handler.
+"""IAM policy document handler.
 
-Checks if the Terraform provided IAM object contains either a custom policy or
-override.
-
+Merges an arbitrary number of policy document templates.
 """
 from __future__ import print_function
 
 import argparse
-import base64
 import collections
 import copy
 import io
@@ -81,37 +78,24 @@ def _merge_iam_policy_doc(doc1, doc2):
     return doc1
 
 
-def main(name, template_paths, policy="", trust="", inline_policy="", **kwargs):
-    """Merge policies and trusts for all template paths."""
+def main(name, template_paths, template):
+    """Merge policy documents for all template paths."""
     iam_policy_doc = {
         'Statement': []
     }
 
-    iam_inline_policy_doc = {
-        'Statement': []
-    }
-
-    ret = {}
-    base = {
+    ret = {
         'name': name,
         'policy': copy.deepcopy(iam_policy_doc),
-        'inline_policy' : copy.deepcopy(iam_inline_policy_doc),
-        'trust': copy.deepcopy(iam_policy_doc)
     }
-
-    ret.update(base)
-    ret.update(**kwargs)
 
     log.info('=' * 40)
     log.info('name = %s', name)
-    log.info('policy = %s', policy)
-    log.info('trust = %s', trust)
+    log.info('template = %s', template)
     log.info('template_paths = %s', template_paths)
 
     for path in template_paths.split(","):
-        policy_path = _join_paths([path, policy])
-        inline_policy_path = _join_paths([path, inline_policy])
-        trust_path = _join_paths([path, trust])
+        policy_path = _join_paths([path, template])
 
         if os.path.isfile(policy_path):
             ret['policy'] = _merge_iam_policy_doc(
@@ -119,27 +103,7 @@ def main(name, template_paths, policy="", trust="", inline_policy="", **kwargs):
                 json.loads(_read(policy_path))
             )
 
-        if os.path.isfile(inline_policy_path):
-            ret['inline_policy'] = _merge_iam_policy_doc(
-                ret['inline_policy'],
-                json.loads(_read(inline_policy_path))
-            )
-
-        if os.path.isfile(trust_path):
-            ret['trust'] = _merge_iam_policy_doc(
-                ret['trust'],
-                json.loads(_read(trust_path))
-            )
-
-    ret['policy'] = base64.b64encode(
-        json.dumps(ret['policy']).encode('utf8')).decode('utf8')
-    ret['inline_policy'] = (
-        ret['policy'] if not ret['inline_policy']['Statement']
-        else base64.b64encode(
-            json.dumps(ret['inline_policy']).encode('utf8')).decode('utf8')
-    )
-    ret['trust'] = base64.b64encode(
-        json.dumps(ret['trust']).encode('utf8')).decode('utf8')
+    ret['policy'] = json.dumps(ret['policy'])
 
     return ret
 

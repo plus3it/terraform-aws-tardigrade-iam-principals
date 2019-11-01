@@ -44,4 +44,3 @@ variable "template_paths" {
   description = "Paths to the directories containing the templates for IAM policies and trusts"
   type        = list(string)
 }
-
