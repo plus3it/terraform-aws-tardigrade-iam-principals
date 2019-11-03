@@ -4,43 +4,61 @@ variable "create_roles" {
   default     = true
 }
 
-variable "create_policies" {
-  description = "Controls whether to create IAM policies; when false, `policy` must be an ARN"
+variable "dependencies" {
+  description = "List of dependency resources applied to `depends_on` in every resource in this module. Typically used with IAM managed policy ARNs that are managed in the same Terraform config"
+  type        = list(string)
+  default     = []
+}
+
+variable "description" {
+  description = "Description of the roles. May also be set per-role in the role-schema"
+  type        = string
+  default     = null
+}
+
+variable "force_detach_policies" {
+  description = "Force detaches any policies the roles have before destroying them. May also be set per-role in the role-schema"
   type        = bool
   default     = true
 }
 
-variable "create_instance_profiles" {
-  description = "Controls whether to create IAM instance profiles"
-  type        = bool
-  default     = false
-}
-
 variable "max_session_duration" {
-  description = "The maximum session duration (in seconds) for each role, value must be between 60 to 43200 seconds"
+  description = "The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. May also be set per-role in the role-schema"
+  type        = number
+  default     = null
+}
+
+variable "path" {
+  description = "The path to the role. See [IAM Identifiers](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html) for more information. May also be set per-role in the role-schema"
   type        = string
-  default     = "43200"
+  default     = null
 }
 
-variable "tags" {
-  description = "Map of tags to apply to the IAM roles"
-  type        = map(string)
-  default     = {}
-}
-
-variable "template_vars" {
-  description = "Map of input variables for IAM trust and policy templates."
-  type        = map(string)
-  default     = {}
+variable "permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the roles. May also be set per-role in the role-schema"
+  type        = string
+  default     = null
 }
 
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of `name`, `trust`, `policy` template (OPTIONAL), and `trust` template (OPTIONAL)"
+  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_polices` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
   type        = list
   default     = []
 }
 
+variable "tags" {
+  description = "Map of tags to apply to the IAM roles. May also be set per-role in the role-schema"
+  type        = map(string)
+  default     = {}
+}
+
 variable "template_paths" {
-  description = "Paths to the directories containing the templates for IAM policies and trusts"
+  description = "Paths to the directories containing the IAM policy templates"
   type        = list(string)
+}
+
+variable "template_vars" {
+  description = "Map of input variables and values for the IAM policy templates."
+  type        = map(string)
+  default     = {}
 }
