@@ -1,114 +1,107 @@
 locals {
-  handler_vars = {
-    template_paths = join(",", var.template_paths)
+  roles_map = { for role in var.roles : role.name => role }
+
+  # Construct list of inline policy maps for use with for_each
+  # https://www.terraform.io/docs/configuration/functions/flatten.html#flattening-nested-structures-for-for_each
+  inline_policies = flatten([
+    for role in var.roles : [
+      for inline_policy in lookup(role, "inline_policies", []) : {
+        id          = "${role.name}:${inline_policy.name}"
+        role_name   = role.name
+        policy_name = inline_policy.name
+        template    = inline_policy.template
+      }
+    ]
+  ])
+
+  # Construct list of managed policy maps for use with for_each
+  managed_policies = flatten([
+    for role in var.roles : [
+      for policy_arn in lookup(role, "policy_arns", []) : {
+        id         = "${role.name}:${policy_arn}"
+        role_name  = role.name
+        policy_arn = policy_arn
+      }
+    ]
+  ])
+}
+
+resource "null_resource" "dependencies" {
+  count = var.create_roles ? 1 : 0
+
+  triggers = {
+    dependencies = join(",", var.dependencies)
   }
-
-  roles_map = { for item in var.roles : item.name => item }
 }
 
-data "external" "handler" {
-  for_each = var.create_roles ? local.roles_map : {}
+module "assume_role_policy_documents" {
+  source = "../policy_documents"
 
-  program = ["python", "${path.module}/../iam_handler.py", "-"]
-  query   = merge(local.handler_vars, each.value)
+  create_policy_documents = var.create_roles
+
+  policies       = [for role in var.roles : { name = role.name, template = role.assume_role_policy }]
+  template_paths = var.template_paths
+  template_vars  = var.template_vars
 }
 
-################################
-#
-# Process policy templates
-#
-################################
+module "inline_policy_documents" {
+  source = "../policy_documents"
 
-# variable assignment within the policies
-data "template_file" "policies" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
+  create_policy_documents = var.create_roles
 
-  template = base64decode(data.external.handler[each.key].result["policy"])
-  vars     = var.template_vars
+  policies       = [for policy_map in local.inline_policies : { name = policy_map.id, template = policy_map.template }]
+  template_paths = var.template_paths
+  template_vars  = var.template_vars
 }
 
-# variable assignment within the inline policies
-data "template_file" "inline_policies" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "inline_policy", null) != null }
-
-  template = base64decode(data.external.handler[each.key].result["inline_policy"])
-  vars     = var.template_vars
-}
-
-################################
-#
-# Process trust templates
-#
-################################
-
-# variable assignment within base trusts
-data "template_file" "trusts" {
-  for_each = var.create_roles ? local.roles_map : {}
-
-  template = base64decode(data.external.handler[each.key].result["trust"])
-  vars     = var.template_vars
-}
-
-################################
-#
-# IAM role creation
-#
-################################
-
-# create the IAM role
+# create the IAM roles
 resource "aws_iam_role" "this" {
   for_each = var.create_roles ? local.roles_map : {}
 
-  name                  = data.external.handler[each.key].result["name"]
-  assume_role_policy    = data.template_file.trusts[each.key].rendered
-  force_detach_policies = true
-  max_session_duration  = var.max_session_duration
-  tags                  = var.tags
+  name               = each.key
+  assume_role_policy = module.assume_role_policy_documents.policies[each.key]
+
+  # If present, use the value set in the role-schema. Otherwise, use the value
+  # set at the module-level variable
+  description           = lookup(each.value, "description", null) != null ? each.value.description : var.description
+  force_detach_policies = lookup(each.value, "force_detach_policies", null) != null ? each.value.force_detach_policies : var.force_detach_policies
+  max_session_duration  = lookup(each.value, "max_session_duration", null) != null ? each.value.max_session_duration : var.max_session_duration
+  path                  = lookup(each.value, "path", null) != null ? each.value.path : var.path
+  permissions_boundary  = lookup(each.value, "permissions_boundary", null) != null ? each.value.permissions_boundary : var.permissions_boundary
+
+  # Merge module-level tags with any additional tags set in the role-schema
+  tags = merge(var.tags, lookup(each.value, "tags", {}))
+
+  depends_on = [null_resource.dependencies]
 }
 
-# create the role policy
-resource "aws_iam_policy" "this" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
+# attach managed policies to the IAM roles
+resource "aws_iam_role_policy_attachment" "this" {
+  for_each = var.create_roles ? { for policy_map in local.managed_policies : policy_map.id => policy_map } : {}
 
-  name   = data.external.handler[each.key].result["name"]
-  policy = data.template_file.policies[each.key].rendered
+  policy_arn = each.value.policy_arn
+  role       = aws_iam_role.this[each.value.role_name].id
+
+  depends_on = [null_resource.dependencies]
 }
 
-# attach created IAM policies to the IAM role
-resource "aws_iam_role_policy_attachment" "created" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "policy", null) != null }
-
-  policy_arn = aws_iam_policy.this[each.key].arn
-  role       = aws_iam_role.this[each.key].id
-}
-
-# attach pre-existing IAM policy ARNs to the IAM role
-resource "aws_iam_role_policy_attachment" "preexisting" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && ! var.create_policies && lookup(role, "policy", null) != null }
-
-  policy_arn = var.roles[each.key]["policy"]
-  role       = aws_iam_role.this[each.key].id
-}
-
-# create inline policy for IAM role where inline policy presents
+# create inline policies for the IAM roles
 resource "aws_iam_role_policy" "this" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && var.create_policies && lookup(role, "inline_policy", null) != null }
+  for_each = var.create_roles ? { for policy_map in local.inline_policies : policy_map.id => policy_map } : {}
 
-  name   = data.external.handler[each.key].result["name"]
-  role   = aws_iam_role.this[each.key].id
-  policy = data.template_file.inline_policies[each.key].rendered
+  name   = each.value.policy_name
+  role   = aws_iam_role.this[each.value.role_name].id
+  policy = module.inline_policy_documents.policies[each.key]
+
+  depends_on = [null_resource.dependencies]
 }
 
-################################
-#
-# Instance profile creation
-#
-################################
-
-# attach the IAM policy to the Instance Role
+# attach an instance profile to the IAM roles
 resource "aws_iam_instance_profile" "this" {
-  for_each = var.create_roles && var.create_instance_profiles ? local.roles_map : {}
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && lookup(role, "instance_profile", false) != false }
 
-  name = data.external.handler[each.key].result["name"]
+  name = aws_iam_role.this[each.key].id
   role = aws_iam_role.this[each.key].id
+
+  depends_on = [null_resource.dependencies]
 }

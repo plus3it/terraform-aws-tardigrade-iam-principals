@@ -4,7 +4,7 @@
             "Action": "sts:AssumeRole",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::${trusted_account}:root"
+                "AWS": "arn:aws:iam::${account_id}:root"
             },
             "Sid": "AssumeRoleCrossAccount"
         }
