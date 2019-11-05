@@ -18,7 +18,10 @@ data "terraform_remote_state" "prereq" {
 locals {
   test_id = length(data.terraform_remote_state.prereq.outputs) > 0 ? data.terraform_remote_state.prereq.outputs.random_string.result : ""
 
-  policy_arns = length(data.terraform_remote_state.prereq.outputs) > 0 ? [for policy in data.terraform_remote_state.prereq.outputs.policies : policy.arn] : []
+  policy_arns = [
+    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}",
+    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}",
+  ]
 
   inline_policies = [
     {
@@ -41,8 +44,8 @@ locals {
   }
 }
 
-module "create_users" {
-  source = "../../modules/users/"
+module "policies" {
+  source = "../../modules/policies/"
   providers = {
     aws = aws
   }
@@ -54,9 +57,47 @@ module "create_users" {
     "region"     = data.aws_region.current.name
   }
 
+  policies = [
+    {
+      name     = "tardigrade-alpha-${local.test_id}"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      template = "policies/template.json"
+      path     = "/tardigrade/"
+    },
+  ]
+}
+
+module "create_users" {
+  source = "../../modules/users/"
+  providers = {
+    aws = aws
+  }
+
+  # To create the managed policies in the same config, from the `policies` module,
+  # need to construct the ARNs manually in `users.policy_arns` and pass the ARN
+  # outputs from the module `policies` as `dependencies`. This is because `users.policy_arns`
+  # is used in the for_each logic and passing the `policies` module output directly
+  # will generate an error:
+  #  > The "for_each" value depends on resource attributes that cannot be determined
+  #  > until apply, so Terraform cannot predict how many instances will be created.
+  #  > To work around this, use the -target argument to first apply only the
+  #  > resources that the for_each depends on.
+
+  dependencies = [for policy in module.policies.policies : policy.arn]
+
+  template_paths = ["${path.module}/../templates/"]
+  template_vars = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
+  }
+
   force_destroy        = true
   path                 = "/tardigrade/"
-  permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-create-users-test"
+  permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
   tags = {
     Test = "true"
   }
@@ -68,7 +109,7 @@ module "create_users" {
       inline_policies      = local.inline_policies
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
-      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-users-test"
+      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
       tags = {
         Env = "tardigrade"
       }
