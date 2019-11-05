@@ -41,9 +41,23 @@ variable "permissions_boundary" {
 }
 
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_polices` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
-  type        = list
-  default     = []
+  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  type = list(object({
+    name                  = string
+    assume_role_policy    = string
+    description           = string
+    force_detach_policies = bool
+    max_session_duration  = number
+    path                  = string
+    permissions_boundary  = string
+    tags                  = map(string)
+    policy_arns           = list(string)
+    inline_policies = list(object({
+      name     = string
+      template = string
+    }))
+  }))
+  default = []
 }
 
 variable "tags" {

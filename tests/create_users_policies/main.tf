@@ -34,6 +34,11 @@ locals {
     },
   ]
 
+  policy_base = {
+    path        = null
+    description = null
+  }
+
   user_base = {
     policy_arns          = []
     inline_policies      = []
@@ -42,6 +47,48 @@ locals {
     permissions_boundary = null
     tags                 = {}
   }
+
+  policies = [
+    {
+      name     = "tardigrade-alpha-${local.test_id}"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      template = "policies/template.json"
+      path     = "/tardigrade/"
+    },
+  ]
+
+  users = [
+    {
+      name                 = "tardigrade-user-alpha-${local.test_id}"
+      policy_arns          = local.policy_arns
+      inline_policies      = local.inline_policies
+      force_destroy        = false
+      path                 = "/tardigrade/alpha/"
+      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
+      tags = {
+        Env = "tardigrade"
+      }
+    },
+    {
+      name            = "tardigrade-user-beta-${local.test_id}"
+      policy_arns     = local.policy_arns
+      inline_policies = local.inline_policies
+    },
+    {
+      name        = "tardigrade-user-chi-${local.test_id}"
+      policy_arns = local.policy_arns
+    },
+    {
+      name            = "tardigrade-user-delta-${local.test_id}"
+      inline_policies = local.inline_policies
+    },
+    {
+      name = "tardigrade-user-epsilon-${local.test_id}"
+    },
+  ]
 }
 
 module "policies" {
@@ -57,17 +104,7 @@ module "policies" {
     "region"     = data.aws_region.current.name
   }
 
-  policies = [
-    {
-      name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
-      path     = "/tardigrade/"
-    },
-  ]
+  policies = [for policy in local.policies : merge(local.policy_base, policy)]
 }
 
 module "create_users" {
@@ -102,35 +139,7 @@ module "create_users" {
     Test = "true"
   }
 
-  users = [
-    merge(local.user_base, {
-      name                 = "tardigrade-user-alpha-${local.test_id}"
-      policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
-      force_destroy        = false
-      path                 = "/tardigrade/alpha/"
-      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
-      tags = {
-        Env = "tardigrade"
-      }
-    }),
-    merge(local.user_base, {
-      name            = "tardigrade-user-beta-${local.test_id}"
-      policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
-    }),
-    merge(local.user_base, {
-      name        = "tardigrade-user-chi-${local.test_id}"
-      policy_arns = local.policy_arns
-    }),
-    merge(local.user_base, {
-      name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = local.inline_policies
-    }),
-    merge(local.user_base, {
-      name = "tardigrade-user-epsilon-${local.test_id}"
-    }),
-  ]
+  users = [for user in local.users : merge(local.user_base, user)]
 }
 
 output "create_users" {

@@ -15,17 +15,10 @@ data "terraform_remote_state" "prereq" {
   }
 }
 
-module "policies" {
-  source = "../../modules/policies/"
-  providers = {
-    aws = aws
-  }
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+locals {
+  policy_base = {
+    path        = null
+    description = null
   }
 
   policies = [
@@ -50,6 +43,22 @@ module "policies" {
       description = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
     },
   ]
+}
+
+module "policies" {
+  source = "../../modules/policies/"
+  providers = {
+    aws = aws
+  }
+
+  template_paths = ["${path.module}/../templates/"]
+  template_vars = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
+  }
+
+  policies = [for policy in local.policies : merge(local.policy_base, policy)]
 }
 
 output "policies" {

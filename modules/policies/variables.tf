@@ -6,8 +6,13 @@ variable "create_policies" {
 
 variable "policies" {
   description = "Schema list of policy objects, consisting of `name`, `template` policy filename (relative to `template_paths`), (OPTIONAL) `description`, (OPTIONAL) `path`"
-  type        = list(map(string))
-  default     = []
+  type = list(object({
+    name        = string
+    template    = string
+    description = string
+    path        = string
+  }))
+  default = []
 }
 
 variable "template_paths" {

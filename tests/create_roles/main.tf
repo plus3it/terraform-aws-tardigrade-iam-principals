@@ -42,6 +42,38 @@ locals {
     permissions_boundary  = null
     tags                  = {}
   }
+
+  roles = [
+    {
+      name                  = "tardigrade-role-alpha-${local.test_id}"
+      policy_arns           = local.policy_arns
+      inline_policies       = local.inline_policies
+      description           = "Managed by Terraform - Tardigrade test policy"
+      force_detach_policies = false
+      max_session_duration  = 3600
+      path                  = "/tardigrade/alpha/"
+      permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-roles-test"
+      tags = {
+        Env = "tardigrade"
+      }
+    },
+    {
+      name            = "tardigrade-role-beta-${local.test_id}"
+      policy_arns     = local.policy_arns
+      inline_policies = local.inline_policies
+    },
+    {
+      name        = "tardigrade-role-chi-${local.test_id}"
+      policy_arns = local.policy_arns
+    },
+    {
+      name            = "tardigrade-role-delta-${local.test_id}"
+      inline_policies = local.inline_policies
+    },
+    {
+      name = "tardigrade-role-epsilon-${local.test_id}"
+    },
+  ]
 }
 
 module "create_roles" {
@@ -66,37 +98,7 @@ module "create_roles" {
     Test = "true"
   }
 
-  roles = [
-    merge(local.role_base, {
-      name                  = "tardigrade-role-alpha-${local.test_id}"
-      policy_arns           = local.policy_arns
-      inline_policies       = local.inline_policies
-      description           = "Managed by Terraform - Tardigrade test policy"
-      force_detach_policies = false
-      max_session_duration  = 3600
-      path                  = "/tardigrade/alpha/"
-      permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-roles-test"
-      tags = {
-        Env = "tardigrade"
-      }
-    }),
-    merge(local.role_base, {
-      name            = "tardigrade-role-beta-${local.test_id}"
-      policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
-    }),
-    merge(local.role_base, {
-      name        = "tardigrade-role-chi-${local.test_id}"
-      policy_arns = local.policy_arns
-    }),
-    merge(local.role_base, {
-      name            = "tardigrade-role-delta-${local.test_id}"
-      inline_policies = local.inline_policies
-    }),
-    merge(local.role_base, {
-      name = "tardigrade-role-epsilon-${local.test_id}"
-    }),
-  ]
+  roles = [for role in local.roles : merge(local.role_base, role)]
 }
 
 output "create_roles" {
