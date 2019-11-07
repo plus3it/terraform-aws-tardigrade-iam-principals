@@ -46,7 +46,18 @@ variable "tags" {
 }
 
 variable "users" {
-  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
-  type        = list
-  default     = []
+  description = "Schema list of IAM users, consisting of `name`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  type = list(object({
+    name                 = string
+    force_destroy        = bool
+    path                 = string
+    permissions_boundary = string
+    tags                 = map(string)
+    policy_arns          = list(string)
+    inline_policies = list(object({
+      name     = string
+      template = string
+    }))
+  }))
+  default = []
 }

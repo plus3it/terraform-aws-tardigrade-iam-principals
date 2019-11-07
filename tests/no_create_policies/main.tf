@@ -9,7 +9,7 @@ module "policies" {
   }
 
   create_policies = false
-  policies = []
+  policies        = []
 }
 
 output "policies" {

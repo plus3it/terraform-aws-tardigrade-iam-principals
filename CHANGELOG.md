@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 3.0.0
+
+**Released**: 2019.11.5
+
+**Commit Delta**: [Change from 2.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/2.0.1...3.0.0)
+
+**Summary**:
+
+*   **WARNING**: This is a near-complete rewrite. Resources in a Terraform state
+    that were created with a prior version will need to be moved (or removed and
+    imported).
+*   Publishes a `policy_documents` module for merging templates of policy document
+    files from an arbitrary number of `template_paths`. The module will also resolve
+    any template variables using the `template_vars` map.
+*   Publishes a `policies` module that creates IAM Managed Policies.
+*   Updates the `roles` and `users` modules to support all of the arguments of
+    their respective resources (`aws_iam_role` and `aws_iam_user`). This includes
+    multiple managed and inline policies per role/user.
+*   Publishes a repo-level module to simplify access to nested modules. The repo-level
+    module simply passes vars through to the respective nested module.
+*   Uses Terraform objects for all schema-list arguments (E.g. `users`) to provide
+    better hints about the supported structure/keys of the schema.
+
 ### 2.0.1
 
 **Released**: 2019.10.28

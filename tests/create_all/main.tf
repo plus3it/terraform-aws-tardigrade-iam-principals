@@ -18,9 +18,10 @@ data "terraform_remote_state" "prereq" {
 locals {
   test_id = length(data.terraform_remote_state.prereq.outputs) > 0 ? data.terraform_remote_state.prereq.outputs.random_string.result : ""
 
+  policy_arn_base = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy"
   policy_arns = [
-    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}",
-    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}",
+    "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}",
+    "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}",
   ]
 
   inline_policies = [
@@ -31,6 +32,18 @@ locals {
     {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
+    },
+  ]
+
+  managed_policies = [
+    {
+      name     = "tardigrade-alpha-${local.test_id}"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      template = "policies/template.json"
+      path     = "/tardigrade/"
     },
   ]
 
@@ -51,17 +64,14 @@ locals {
     tags                  = {}
   }
 
-  policies = [
-    {
-      name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
-      path     = "/tardigrade/"
-    },
-  ]
+  user_base = {
+    policy_arns          = []
+    inline_policies      = []
+    force_destroy        = null
+    path                 = null
+    permissions_boundary = null
+    tags                 = {}
+  }
 
   roles = [
     {
@@ -72,7 +82,7 @@ locals {
       force_detach_policies = false
       max_session_duration  = 3600
       path                  = "/tardigrade/alpha/"
-      permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
+      permissions_boundary  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
       tags = {
         Env = "tardigrade"
       }
@@ -94,41 +104,44 @@ locals {
       name = "tardigrade-role-epsilon-${local.test_id}"
     },
   ]
+
+  users = [
+    {
+      name                 = "tardigrade-user-alpha-${local.test_id}"
+      policy_arns          = local.policy_arns
+      inline_policies      = local.inline_policies
+      force_destroy        = false
+      path                 = "/tardigrade/alpha/"
+      permissions_boundary = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
+      tags = {
+        Env = "tardigrade"
+      }
+    },
+    {
+      name            = "tardigrade-user-beta-${local.test_id}"
+      policy_arns     = local.policy_arns
+      inline_policies = local.inline_policies
+    },
+    {
+      name        = "tardigrade-user-chi-${local.test_id}"
+      policy_arns = local.policy_arns
+    },
+    {
+      name            = "tardigrade-user-delta-${local.test_id}"
+      inline_policies = local.inline_policies
+    },
+    {
+      name = "tardigrade-user-epsilon-${local.test_id}"
+    },
+  ]
 }
 
-module "policies" {
-  source = "../../modules/policies/"
-  providers = {
-    aws = aws
-  }
+module "create_all" {
+  source = "../../"
 
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
-  }
-
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
-}
-
-module "create_roles" {
-  source = "../../modules/roles/"
-  providers = {
-    aws = aws
-  }
-
-  # To create the managed policies in the same config, from the `policies` module,
-  # need to construct the ARNs manually in `roles.policy_arns` and pass the ARN
-  # outputs from the module `policies` as `dependencies`. This is because `roles.policy_arns`
-  # is used in the for_each logic and passing the `policies` module output directly
-  # will generate an error:
-  #  > The "for_each" value depends on resource attributes that cannot be determined
-  #  > until apply, so Terraform cannot predict how many instances will be created.
-  #  > To work around this, use the -target argument to first apply only the
-  #  > resources that the for_each depends on.
-
-  dependencies = [for policy in module.policies.policies : policy.arn]
+  create_policies = true
+  create_roles    = true
+  create_users    = true
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -139,16 +152,19 @@ module "create_roles" {
 
   description           = "Managed by Terraform"
   force_detach_policies = true
+  force_destroy         = true
   max_session_duration  = 7200
   path                  = "/tardigrade/"
-  permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
+  permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
   tags = {
     Test = "true"
   }
 
-  roles = [for role in local.roles : merge(local.role_base, role)]
+  policies = [for policy in local.managed_policies : merge(local.policy_base, policy)]
+  roles    = [for role in local.roles : merge(local.role_base, role)]
+  users    = [for user in local.users : merge(local.user_base, user)]
 }
 
-output "create_roles" {
-  value = module.create_roles
+output "create_all" {
+  value = module.create_all
 }

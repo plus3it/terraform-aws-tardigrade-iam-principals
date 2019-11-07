@@ -1,5 +1,17 @@
+variable "create_policies" {
+  description = "Controls whether to create IAM policies"
+  type        = bool
+  default     = true
+}
+
 variable "create_roles" {
   description = "Controls whether to create IAM roles"
+  type        = bool
+  default     = true
+}
+
+variable "create_users" {
+  description = "Controls whether an IAM user will be created"
   type        = bool
   default     = true
 }
@@ -14,6 +26,12 @@ variable "description" {
   description = "Description of the roles. May also be set per-role in the role-schema"
   type        = string
   default     = null
+}
+
+variable "force_destroy" {
+  description = "When destroying these users, destroy even if they have non-Terraform-managed IAM access keys, login profile or MFA devices. Without force_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed. May also be set per-user in the user-schema"
+  type        = bool
+  default     = true
 }
 
 variable "force_detach_policies" {
@@ -40,8 +58,19 @@ variable "permissions_boundary" {
   default     = null
 }
 
+variable "policies" {
+  description = "Schema list of policy objects, consisting of `name`, `template` policy filename (relative to `template_paths`), (OPTIONAL) `description`, (OPTIONAL) `path`"
+  type = list(object({
+    name        = string
+    template    = string
+    description = string
+    path        = string
+  }))
+  default = []
+}
+
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_polices` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
   type = list(object({
     name                  = string
     assume_role_policy    = string
@@ -75,4 +104,21 @@ variable "template_vars" {
   description = "Map of input variables and values for the IAM policy templates."
   type        = map(string)
   default     = {}
+}
+
+variable "users" {
+  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  type = list(object({
+    name                 = string
+    force_destroy        = bool
+    path                 = string
+    permissions_boundary = string
+    tags                 = map(string)
+    policy_arns          = list(string)
+    inline_policies = list(object({
+      name     = string
+      template = string
+    }))
+  }))
+  default = []
 }
