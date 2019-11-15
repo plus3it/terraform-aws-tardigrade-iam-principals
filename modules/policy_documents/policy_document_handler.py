@@ -17,12 +17,12 @@ DEFAULT_LOG_LEVEL = logging.DEBUG
 LOG_LEVELS = collections.defaultdict(
     lambda: DEFAULT_LOG_LEVEL,
     {
-        'critical': logging.CRITICAL,
-        'error': logging.ERROR,
-        'warning': logging.WARNING,
-        'info': logging.INFO,
-        'debug': logging.DEBUG
-    }
+        "critical": logging.CRITICAL,
+        "error": logging.ERROR,
+        "warning": logging.WARNING,
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+    },
 )
 
 # Lambda initializes a root logger that needs to be removed in order to set a
@@ -33,10 +33,11 @@ if root.handlers:
         root.removeHandler(handler)
 
 logging.basicConfig(
-    filename='iam_handler.log',
-    format='%(asctime)s.%(msecs)03dZ [%(name)s][%(levelname)-5s]: %(message)s',
-    datefmt='%Y-%m-%dT%H:%M:%S',
-    level=LOG_LEVELS[os.environ.get('LOG_LEVEL', '').lower()])
+    filename="iam_handler.log",
+    format="%(asctime)s.%(msecs)03dZ [%(name)s][%(levelname)-5s]: %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=LOG_LEVELS[os.environ.get("LOG_LEVEL", "").lower()],
+)
 log = logging.getLogger(__name__)
 
 
@@ -44,7 +45,7 @@ def _join_paths(*paths):
     return "/".join(*paths).replace("//", "/")
 
 
-def _read(path, encoding='utf8', **kwargs):
+def _read(path, encoding="utf8", **kwargs):
     """Read a file."""
     with io.open(path, encoding=encoding, **kwargs) as fh_:
         return fh_.read()
@@ -52,58 +53,55 @@ def _read(path, encoding='utf8', **kwargs):
 
 def _merge_iam_policy_doc(doc1, doc2):
     # adopt doc2's Id
-    if doc2.get('Id'):
-        doc1['Id'] = doc2['Id']
+    if doc2.get("Id"):
+        doc1["Id"] = doc2["Id"]
 
     # let doc2 upgrade our Version
-    if doc2.get('Version', '') > doc1.get('Version', ''):
-        doc1['Version'] = doc2['Version']
+    if doc2.get("Version", "") > doc1.get("Version", ""):
+        doc1["Version"] = doc2["Version"]
 
     # merge in doc2's statements, overwriting any existing Sids
-    for doc2_statement in doc2['Statement']:
-        if not doc2_statement.get('Sid'):
-            doc1['Statement'].append(doc2_statement)
+    for doc2_statement in doc2["Statement"]:
+        if not doc2_statement.get("Sid"):
+            doc1["Statement"].append(doc2_statement)
             continue
 
         seen = False
-        for index, doc1_statement in enumerate(doc1['Statement']):
-            if doc1_statement.get('Sid') == doc2_statement.get('Sid'):
-                doc1['Statement'][index] = doc2_statement
+        for index, doc1_statement in enumerate(doc1["Statement"]):
+            if doc1_statement.get("Sid") == doc2_statement.get("Sid"):
+                doc1["Statement"][index] = doc2_statement
                 seen = True
                 break
 
         if not seen:
-            doc1['Statement'].append(doc2_statement)
+            doc1["Statement"].append(doc2_statement)
 
     return doc1
 
 
 def main(name, template_paths, template):
     """Merge policy documents for all template paths."""
-    iam_policy_doc = {
-        'Statement': []
-    }
+    iam_policy_doc = {"Statement": []}
 
     ret = {
-        'name': name,
-        'policy': copy.deepcopy(iam_policy_doc),
+        "name": name,
+        "policy": copy.deepcopy(iam_policy_doc),
     }
 
-    log.info('=' * 40)
-    log.info('name = %s', name)
-    log.info('template = %s', template)
-    log.info('template_paths = %s', template_paths)
+    log.info("=" * 40)
+    log.info("name = %s", name)
+    log.info("template = %s", template)
+    log.info("template_paths = %s", template_paths)
 
     for path in template_paths.split(","):
         policy_path = _join_paths([path, template])
 
         if os.path.isfile(policy_path):
-            ret['policy'] = _merge_iam_policy_doc(
-                ret['policy'],
-                json.loads(_read(policy_path))
+            ret["policy"] = _merge_iam_policy_doc(
+                ret["policy"], json.loads(_read(policy_path))
             )
 
-    ret['policy'] = json.dumps(ret['policy'])
+    ret["policy"] = json.dumps(ret["policy"])
 
     return ret
 
@@ -111,8 +109,10 @@ def main(name, template_paths, template):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "json", type=argparse.FileType("r"), default=sys.stdin,
-        help="Parses input from a json file or stdin"
+        "json",
+        type=argparse.FileType("r"),
+        default=sys.stdin,
+        help="Parses input from a json file or stdin",
     )
 
     args = parser.parse_args()
