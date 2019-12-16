@@ -31,9 +31,24 @@ locals {
     },
   ]
 
+  access_keys = [
+    {
+      name = "tardigrade-alpha-${local.test_id}"
+    },
+    {
+      name = "tardigrade-beta-${local.test_id}"
+    },
+  ]
+
+  access_key_base = {
+    pgp_key = null
+    status  = null
+  }
+
   user_base = {
     policy_arns          = []
     inline_policies      = []
+    access_keys          = []
     force_destroy        = null
     path                 = null
     permissions_boundary = null
@@ -45,6 +60,7 @@ locals {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       policy_arns          = local.policy_arns
       inline_policies      = local.inline_policies
+      access_keys          = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
       permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-users-test"

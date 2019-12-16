@@ -12,3 +12,9 @@ output "users" {
   description = "IAM user resources"
   value       = length(module.users) > 0 ? module.users.users : null
 }
+
+output "access_keys" {
+  description = "IAM access key resources"
+  value       = length(module.users) > 0 ? module.users.access_keys : null
+  sensitive   = true
+}

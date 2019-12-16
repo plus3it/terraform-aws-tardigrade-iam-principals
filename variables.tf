@@ -107,7 +107,7 @@ variable "template_vars" {
 }
 
 variable "users" {
-  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `access_keys` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
   type = list(object({
     name                 = string
     force_destroy        = bool
@@ -118,6 +118,11 @@ variable "users" {
     inline_policies = list(object({
       name     = string
       template = string
+    }))
+    access_keys = list(object({
+      name    = string
+      status  = string
+      pgp_key = string
     }))
   }))
   default = []

@@ -24,6 +24,18 @@ locals {
       }
     ]
   ])
+
+  # Construct list of access key maps for use with for_each
+  access_keys = flatten([
+    for user in var.users : [
+      for access_key in lookup(user, "access_keys", []) : {
+        id        = "${user.name}:${access_key.name}"
+        user_name = user.name
+        status    = access_key.status
+        pgp_key   = access_key.pgp_key
+      }
+    ]
+  ])
 }
 
 resource "null_resource" "dependencies" {
@@ -81,4 +93,13 @@ resource "aws_iam_user_policy" "this" {
   policy = module.inline_policy_documents.policies[each.key]
 
   depends_on = [null_resource.dependencies]
+}
+
+# create access keys for the IAM users
+resource "aws_iam_access_key" "this" {
+  for_each = var.create_users ? { for access_key in local.access_keys : access_key.id => access_key } : {}
+
+  user    = aws_iam_user.this[each.value.user_name].id
+  pgp_key = lookup(each.value, "pgp_key", null)
+  status  = lookup(each.value, "status", null)
 }
