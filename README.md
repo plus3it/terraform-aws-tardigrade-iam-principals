@@ -21,12 +21,13 @@ Terraform module to create IAM managed policies, roles, and users
 | tags | Map of tags to apply to the IAM roles. May also be set per-role in the role-schema | map(string) | `<map>` | no |
 | template\_paths | Paths to the directories containing the IAM policy templates | list(string) | n/a | yes |
 | template\_vars | Map of input variables and values for the IAM policy templates. | map(string) | `<map>` | no |
-| users | Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL) | object | `<list>` | no |
+| users | Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `access_keys` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL) | object | `<list>` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| access\_keys | IAM access key resources |
 | policies | IAM managed policy resources |
 | roles | IAM role resources |
 | users | IAM user resources |

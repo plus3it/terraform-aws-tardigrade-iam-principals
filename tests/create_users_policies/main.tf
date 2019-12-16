@@ -42,6 +42,7 @@ locals {
   user_base = {
     policy_arns          = []
     inline_policies      = []
+    access_keys          = []
     force_destroy        = null
     path                 = null
     permissions_boundary = null

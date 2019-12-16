@@ -14,11 +14,12 @@ Terraform module to create IAM users
 | tags | Map of tags to apply to the IAM roles | map(string) | `<map>` | no |
 | template\_paths | Paths to the directories containing the templates for IAM policies and trusts | list(string) | n/a | yes |
 | template\_vars | Map of input variables for IAM trust and policy templates | map(string) | `<map>` | no |
-| users | Schema list of IAM users, consisting of `name`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL) | object | `<list>` | no |
+| users | Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `access_keys` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL) | object | `<list>` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| access\_keys | IAM access key resources |
 | users | IAM user resources |
 
