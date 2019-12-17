@@ -4,12 +4,6 @@ variable "create_roles" {
   default     = true
 }
 
-variable "dependencies" {
-  description = "List of dependency resources applied to `depends_on` in every resource in this module. Typically used with IAM managed policy ARNs that are managed in the same Terraform config"
-  type        = list(string)
-  default     = []
-}
-
 variable "description" {
   description = "Description of the roles. May also be set per-role in the role-schema"
   type        = string
@@ -38,6 +32,12 @@ variable "permissions_boundary" {
   description = "ARN of the policy that is used to set the permissions boundary for the roles. May also be set per-role in the role-schema"
   type        = string
   default     = null
+}
+
+variable "policy_arns" {
+  description = "List of all managed policy ARNs used in the roles object. This is needed to properly order policy attachments/detachments on resource cycles"
+  type        = list(string)
+  default     = []
 }
 
 variable "roles" {

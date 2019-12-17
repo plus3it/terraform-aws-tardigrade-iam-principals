@@ -72,7 +72,6 @@ locals {
       force_detach_policies = false
       max_session_duration  = 3600
       path                  = "/tardigrade/alpha/"
-      permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
       tags = {
         Env = "tardigrade"
       }
@@ -120,7 +119,7 @@ module "create_roles" {
 
   # To create the managed policies in the same config, from the `policies` module,
   # need to construct the ARNs manually in `roles.policy_arns` and pass the ARN
-  # outputs from the module `policies` as `dependencies`. This is because `roles.policy_arns`
+  # outputs from the module `policies` as `policy_arns`. This is because `roles.policy_arns`
   # is used in the for_each logic and passing the `policies` module output directly
   # will generate an error:
   #  > The "for_each" value depends on resource attributes that cannot be determined
@@ -128,7 +127,7 @@ module "create_roles" {
   #  > To work around this, use the -target argument to first apply only the
   #  > resources that the for_each depends on.
 
-  dependencies = [for policy in module.policies.policies : policy.arn]
+  policy_arns = [for policy in module.policies.policies : policy.arn]
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -141,12 +140,16 @@ module "create_roles" {
   force_detach_policies = true
   max_session_duration  = 7200
   path                  = "/tardigrade/"
-  permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
+  permissions_boundary  = module.policies.policies["tardigrade-alpha-${local.test_id}"].arn
   tags = {
     Test = "true"
   }
 
   roles = [for role in local.roles : merge(local.role_base, role)]
+}
+
+output "policies" {
+  value = module.policies
 }
 
 output "create_roles" {
