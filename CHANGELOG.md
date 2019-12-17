@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 4.0.0
+
+**Released**: Not yet released
+
+**Commit Delta**: [Change from 3.1.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/3.1.0...4.0.0)
+
+**Summary**:
+
+*   **WARNING**: This release renames the `dependencies` variable to `policy_arns`,
+    as policy attachments are the only resource in the module that can cause race
+    conditions requiring explicit dependency management.
+*   The `policy_arns` variable improves dependency handling during replacing updates
+    of policies, as it is used directly (and only) as an attribute in the role/user
+    policy attachment. Because it is not used in the `for_each` expressions, users
+    can pass the output of another resource to `policy_arns`. Being used as an attribute
+    is how Terraform establishes the tree for dependency ordering. See [PR #38](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/38).
+
+*   Adds support for managing IAM user access keys
+
+### 3.1.0
+
+**Released**: 2019.12.16
+
+**Commit Delta**: [Change from 3.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/3.0.0...3.1.0)
+
+**Summary**:
+
+*   Adds support for managing IAM user access keys
+
 ### 3.0.0
 
 **Released**: 2019.11.5
