@@ -38,14 +38,6 @@ locals {
   ])
 }
 
-resource "null_resource" "dependencies" {
-  count = var.create_users ? 1 : 0
-
-  triggers = {
-    dependencies = join(",", var.dependencies)
-  }
-}
-
 module "inline_policy_documents" {
   source = "../policy_documents"
 
@@ -70,18 +62,14 @@ resource "aws_iam_user" "this" {
 
   # Merge module-level tags with any additional tags set in the user-schema
   tags = merge(var.tags, lookup(each.value, "tags", {}))
-
-  depends_on = [null_resource.dependencies]
 }
 
 # attach managed policies to the IAM users
 resource "aws_iam_user_policy_attachment" "this" {
   for_each = var.create_users ? { for policy_map in local.managed_policies : policy_map.id => policy_map } : {}
 
-  policy_arn = each.value.policy_arn
+  policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
   user       = aws_iam_user.this[each.value.user_name].id
-
-  depends_on = [null_resource.dependencies]
 }
 
 # create inline policies for the IAM users
@@ -91,8 +79,6 @@ resource "aws_iam_user_policy" "this" {
   name   = each.value.policy_name
   user   = aws_iam_user.this[each.value.user_name].id
   policy = module.inline_policy_documents.policies[each.key]
-
-  depends_on = [null_resource.dependencies]
 }
 
 # create access keys for the IAM users

@@ -4,12 +4,6 @@ variable "create_users" {
   default     = true
 }
 
-variable "dependencies" {
-  description = "List of dependency resources applied to `depends_on` in every resource in this module. Typically used with IAM managed policy ARNs that are managed in the same Terraform config"
-  type        = list(string)
-  default     = []
-}
-
 variable "force_destroy" {
   description = "When destroying these users, destroy even if they have non-Terraform-managed IAM access keys, login profile or MFA devices. Without force_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed. May also be set per-user in the user-schema"
   type        = bool
@@ -26,6 +20,12 @@ variable "permissions_boundary" {
   description = "ARN of the policy that is used to set the permissions boundary for the users. May also be set per-user in the user-schema"
   type        = string
   default     = null
+}
+
+variable "policy_arns" {
+  description = "List of all managed policy ARNs used in the users object. This is needed to properly order policy attachments/detachments on resource cycles"
+  type        = list(string)
+  default     = []
 }
 
 variable "template_paths" {
