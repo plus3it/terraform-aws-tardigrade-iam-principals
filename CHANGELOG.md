@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 4.0.1
+
+**Released**: 2019.12.23
+
+**Commit Delta**: [Change from 4.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.0.0...4.0.1)
+
+**Summary**:
+
+*   Looks up permissions boundary only when not `null`. Fixes the error:
+    `Invalid value for "value" parameter: argument must not be null`. See
+    [PR #40](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/40).
+
 ### 4.0.0
 
 **Released**: 2019.12.23
