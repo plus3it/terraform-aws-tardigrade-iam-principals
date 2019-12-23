@@ -53,16 +53,14 @@ resource "aws_iam_role" "this" {
   name               = each.key
   assume_role_policy = module.assume_role_policy_documents.policies[each.key]
 
-  # If present, use the value set in the role-schema. Otherwise, use the value
-  # set at the module-level variable
-  description           = lookup(each.value, "description", null) != null ? each.value.description : var.description
-  force_detach_policies = lookup(each.value, "force_detach_policies", null) != null ? each.value.force_detach_policies : var.force_detach_policies
-  max_session_duration  = lookup(each.value, "max_session_duration", null) != null ? each.value.max_session_duration : var.max_session_duration
-  path                  = lookup(each.value, "path", null) != null ? each.value.path : var.path
-  permissions_boundary  = lookup(each.value, "permissions_boundary", null) != null ? each.value.permissions_boundary : var.permissions_boundary
+  description           = each.value.description
+  force_detach_policies = each.value.force_detach_policies
+  max_session_duration  = each.value.max_session_duration
+  path                  = each.value.path
+  permissions_boundary  = var.policy_arns[index(var.policy_arns, each.value.permissions_boundary)]
 
-  # Merge module-level tags with any additional tags set in the role-schema
-  tags = merge(var.tags, lookup(each.value, "tags", {}))
+  # Merge module-level tags with tags set in the role-schema
+  tags = merge(var.tags, each.value.tags)
 }
 
 # attach managed policies to the IAM roles

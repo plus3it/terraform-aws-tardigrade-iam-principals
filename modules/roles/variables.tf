@@ -4,36 +4,6 @@ variable "create_roles" {
   default     = true
 }
 
-variable "description" {
-  description = "Description of the roles. May also be set per-role in the role-schema"
-  type        = string
-  default     = null
-}
-
-variable "force_detach_policies" {
-  description = "Force detaches any policies the roles have before destroying them. May also be set per-role in the role-schema"
-  type        = bool
-  default     = true
-}
-
-variable "max_session_duration" {
-  description = "The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. May also be set per-role in the role-schema"
-  type        = number
-  default     = null
-}
-
-variable "path" {
-  description = "The path to the role. See [IAM Identifiers](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html) for more information. May also be set per-role in the role-schema"
-  type        = string
-  default     = null
-}
-
-variable "permissions_boundary" {
-  description = "ARN of the policy that is used to set the permissions boundary for the roles. May also be set per-role in the role-schema"
-  type        = string
-  default     = null
-}
-
 variable "policy_arns" {
   description = "List of all managed policy ARNs used in the roles object. This is needed to properly order policy attachments/detachments on resource cycles"
   type        = list(string)
@@ -61,7 +31,7 @@ variable "roles" {
 }
 
 variable "tags" {
-  description = "Map of tags to apply to the IAM roles. May also be set per-role in the role-schema"
+  description = "Map of tags to apply to the IAM roles. Merged with tags set per-role in the role-schema"
   type        = map(string)
   default     = {}
 }
