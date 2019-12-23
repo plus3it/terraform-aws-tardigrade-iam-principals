@@ -2,6 +2,13 @@ terraform {
   required_version = ">= 0.12"
 }
 
+locals {
+  policy_arns = distinct(concat(
+    var.policy_arns,
+    [for policy in module.policies.policies : policy.arn]
+  ))
+}
+
 module "policies" {
   source = "./modules/policies/"
 
@@ -15,41 +22,23 @@ module "policies" {
 module "roles" {
   source = "./modules/roles/"
 
-  policy_arns = distinct(concat(
-    var.policy_arns,
-    [for policy in module.policies.policies : policy.arn]
-  ))
+  policy_arns = local.policy_arns
 
   create_roles   = var.create_roles
+  roles          = var.roles
+  tags           = var.tags
   template_paths = var.template_paths
   template_vars  = var.template_vars
-
-  description           = var.description
-  force_detach_policies = var.force_detach_policies
-  max_session_duration  = var.max_session_duration
-  path                  = var.path
-  permissions_boundary  = var.permissions_boundary
-  tags                  = var.tags
-
-  roles = var.roles
 }
 
 module "users" {
   source = "./modules/users/"
 
-  policy_arns = distinct(concat(
-    var.policy_arns,
-    [for policy in module.policies.policies : policy.arn]
-  ))
+  policy_arns = local.policy_arns
 
   create_users   = var.create_users
+  tags           = var.tags
   template_paths = var.template_paths
   template_vars  = var.template_vars
-
-  force_destroy        = var.force_destroy
-  path                 = var.path
-  permissions_boundary = var.permissions_boundary
-  tags                 = var.tags
-
-  users = var.users
+  users          = var.users
 }
