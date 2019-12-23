@@ -54,13 +54,11 @@ resource "aws_iam_user" "this" {
 
   name = each.key
 
-  # If present, use the value set in the user-schema. Otherwise, use the value
-  # set at the module-level variable
-  force_destroy        = lookup(each.value, "force_destroy", null) != null ? each.value.force_destroy : var.force_destroy
-  path                 = lookup(each.value, "path", null) != null ? each.value.path : var.path
-  permissions_boundary = lookup(each.value, "permissions_boundary", null) != null ? each.value.permissions_boundary : var.permissions_boundary
+  force_destroy        = each.value.force_destroy
+  path                 = each.value.path
+  permissions_boundary = var.policy_arns[index(var.policy_arns, each.value.permissions_boundary)]
 
-  # Merge module-level tags with any additional tags set in the user-schema
+  # Merge module-level tags with tags set in the user-schema
   tags = merge(var.tags, lookup(each.value, "tags", {}))
 }
 
@@ -86,6 +84,6 @@ resource "aws_iam_access_key" "this" {
   for_each = var.create_users ? { for access_key in local.access_keys : access_key.id => access_key } : {}
 
   user    = aws_iam_user.this[each.value.user_name].id
-  pgp_key = lookup(each.value, "pgp_key", null)
-  status  = lookup(each.value, "status", null)
+  pgp_key = each.value.pgp_key
+  status  = each.value.status
 }

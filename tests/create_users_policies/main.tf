@@ -45,7 +45,7 @@ locals {
     access_keys          = []
     force_destroy        = null
     path                 = null
-    permissions_boundary = null
+    permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
     tags                 = {}
   }
 
@@ -64,11 +64,12 @@ locals {
 
   users = [
     {
-      name            = "tardigrade-user-alpha-${local.test_id}"
-      policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
-      force_destroy   = false
-      path            = "/tardigrade/alpha/"
+      name                 = "tardigrade-user-alpha-${local.test_id}"
+      policy_arns          = local.policy_arns
+      inline_policies      = local.inline_policies
+      force_destroy        = false
+      path                 = "/tardigrade/alpha/"
+      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
       tags = {
         Env = "tardigrade"
       }
@@ -125,6 +126,7 @@ module "create_users" {
   #  > resources that the for_each depends on.
 
   policy_arns = [for policy in module.policies.policies : policy.arn]
+  users       = [for user in local.users : merge(local.user_base, user)]
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -133,14 +135,9 @@ module "create_users" {
     "region"     = data.aws_region.current.name
   }
 
-  force_destroy        = true
-  path                 = "/tardigrade/"
-  permissions_boundary = module.policies.policies["tardigrade-alpha-${local.test_id}"].arn
   tags = {
     Test = "true"
   }
-
-  users = [for user in local.users : merge(local.user_base, user)]
 }
 
 output "create_users" {

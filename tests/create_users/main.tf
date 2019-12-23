@@ -51,7 +51,7 @@ locals {
     access_keys          = []
     force_destroy        = null
     path                 = null
-    permissions_boundary = null
+    permissions_boundary = data.terraform_remote_state.prereq.outputs.policies["tardigrade-alpha-create-users-test"].arn
     tags                 = {}
   }
 
@@ -63,7 +63,7 @@ locals {
       access_keys          = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
-      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-users-test"
+      permissions_boundary = data.terraform_remote_state.prereq.outputs.policies["tardigrade-beta-create-users-test"].arn
       tags = {
         Env = "tardigrade"
       }
@@ -94,6 +94,7 @@ module "create_users" {
   }
 
   policy_arns = local.policy_arns
+  users       = [for user in local.users : merge(local.user_base, user)]
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -102,14 +103,9 @@ module "create_users" {
     "region"     = data.aws_region.current.name
   }
 
-  force_destroy        = true
-  path                 = "/tardigrade/"
-  permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-create-users-test"
   tags = {
     Test = "true"
   }
-
-  users = [for user in local.users : merge(local.user_base, user)]
 }
 
 output "create_users" {
