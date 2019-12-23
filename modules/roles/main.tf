@@ -57,7 +57,7 @@ resource "aws_iam_role" "this" {
   force_detach_policies = each.value.force_detach_policies
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
-  permissions_boundary  = var.policy_arns[index(var.policy_arns, each.value.permissions_boundary)]
+  permissions_boundary  = each.value.permissions_boundary != null ? var.policy_arns[index(var.policy_arns, each.value.permissions_boundary)] : null
 
   # Merge module-level tags with tags set in the role-schema
   tags = merge(var.tags, each.value.tags)

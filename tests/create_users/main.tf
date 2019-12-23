@@ -69,9 +69,10 @@ locals {
       }
     },
     {
-      name            = "tardigrade-user-beta-${local.test_id}"
-      policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
+      name                 = "tardigrade-user-beta-${local.test_id}"
+      policy_arns          = local.policy_arns
+      inline_policies      = local.inline_policies
+      permissions_boundary = null
     },
     {
       name        = "tardigrade-user-chi-${local.test_id}"
