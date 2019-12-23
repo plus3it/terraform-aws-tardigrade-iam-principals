@@ -97,7 +97,6 @@ locals {
       force_detach_policies = false
       max_session_duration  = 3600
       path                  = "/tardigrade/alpha/"
-      permissions_boundary  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
       tags = {
         Env = "tardigrade"
       }
@@ -122,13 +121,12 @@ locals {
 
   users = [
     {
-      name                 = "tardigrade-user-alpha-${local.test_id}"
-      policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
-      access_keys           = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
-      force_destroy        = false
-      path                 = "/tardigrade/alpha/"
-      permissions_boundary = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
+      name            = "tardigrade-user-alpha-${local.test_id}"
+      policy_arns     = local.policy_arns
+      inline_policies = local.inline_policies
+      access_keys     = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
+      force_destroy   = false
+      path            = "/tardigrade/alpha/"
       tags = {
         Env = "tardigrade"
       }
@@ -171,7 +169,6 @@ module "create_all" {
   force_destroy         = true
   max_session_duration  = 7200
   path                  = "/tardigrade/"
-  permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
   tags = {
     Test = "true"
   }

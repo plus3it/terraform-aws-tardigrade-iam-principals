@@ -15,7 +15,10 @@ module "policies" {
 module "roles" {
   source = "./modules/roles/"
 
-  dependencies = [for policy in module.policies.policies : policy.arn]
+  policy_arns = distinct(concat(
+    var.policy_arns,
+    [for policy in module.policies.policies : policy.arn]
+  ))
 
   create_roles   = var.create_roles
   template_paths = var.template_paths
@@ -34,7 +37,10 @@ module "roles" {
 module "users" {
   source = "./modules/users/"
 
-  dependencies = [for policy in module.policies.policies : policy.arn]
+  policy_arns = distinct(concat(
+    var.policy_arns,
+    [for policy in module.policies.policies : policy.arn]
+  ))
 
   create_users   = var.create_users
   template_paths = var.template_paths

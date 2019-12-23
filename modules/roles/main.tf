@@ -26,14 +26,6 @@ locals {
   ])
 }
 
-resource "null_resource" "dependencies" {
-  count = var.create_roles ? 1 : 0
-
-  triggers = {
-    dependencies = join(",", var.dependencies)
-  }
-}
-
 module "assume_role_policy_documents" {
   source = "../policy_documents"
 
@@ -71,18 +63,14 @@ resource "aws_iam_role" "this" {
 
   # Merge module-level tags with any additional tags set in the role-schema
   tags = merge(var.tags, lookup(each.value, "tags", {}))
-
-  depends_on = [null_resource.dependencies]
 }
 
 # attach managed policies to the IAM roles
 resource "aws_iam_role_policy_attachment" "this" {
   for_each = var.create_roles ? { for policy_map in local.managed_policies : policy_map.id => policy_map } : {}
 
-  policy_arn = each.value.policy_arn
+  policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
   role       = aws_iam_role.this[each.value.role_name].id
-
-  depends_on = [null_resource.dependencies]
 }
 
 # create inline policies for the IAM roles
@@ -92,8 +80,6 @@ resource "aws_iam_role_policy" "this" {
   name   = each.value.policy_name
   role   = aws_iam_role.this[each.value.role_name].id
   policy = module.inline_policy_documents.policies[each.key]
-
-  depends_on = [null_resource.dependencies]
 }
 
 # attach an instance profile to the IAM roles
@@ -102,6 +88,4 @@ resource "aws_iam_instance_profile" "this" {
 
   name = aws_iam_role.this[each.key].id
   role = aws_iam_role.this[each.key].id
-
-  depends_on = [null_resource.dependencies]
 }

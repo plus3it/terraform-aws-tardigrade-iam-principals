@@ -93,6 +93,8 @@ module "create_users" {
     aws = aws
   }
 
+  policy_arns = local.policy_arns
+
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
     "account_id" = data.aws_caller_identity.current.account_id
