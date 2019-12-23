@@ -51,14 +51,14 @@ module "policies" {
     aws = aws
   }
 
+  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
     "account_id" = data.aws_caller_identity.current.account_id
     "partition"  = data.aws_partition.current.partition
     "region"     = data.aws_region.current.name
   }
-
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
 }
 
 output "policies" {

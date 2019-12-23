@@ -16,6 +16,6 @@ resource "aws_iam_policy" "this" {
 
   name        = each.key
   policy      = module.policy_documents.policies[each.key]
-  description = lookup(each.value, "description", null)
-  path        = lookup(each.value, "path", null)
+  description = each.value.description
+  path        = each.value.path
 }

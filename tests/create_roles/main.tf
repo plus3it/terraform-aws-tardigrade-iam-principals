@@ -39,7 +39,7 @@ locals {
     force_detach_policies = null
     max_session_duration  = null
     path                  = null
-    permissions_boundary  = null
+    permissions_boundary  = data.terraform_remote_state.prereq.outputs.policies["tardigrade-alpha-create-roles-test"].arn
     tags                  = {}
   }
 
@@ -52,7 +52,7 @@ locals {
       force_detach_policies = false
       max_session_duration  = 3600
       path                  = "/tardigrade/alpha/"
-      permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-create-roles-test"
+      permissions_boundary  = data.terraform_remote_state.prereq.outputs.policies["tardigrade-beta-create-roles-test"].arn
       tags = {
         Env = "tardigrade"
       }
@@ -83,6 +83,7 @@ module "create_roles" {
   }
 
   policy_arns = local.policy_arns
+  roles       = [for role in local.roles : merge(local.role_base, role)]
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -91,16 +92,9 @@ module "create_roles" {
     "region"     = data.aws_region.current.name
   }
 
-  description           = "Managed by Terraform"
-  force_detach_policies = true
-  max_session_duration  = 7200
-  path                  = "/tardigrade/"
-  permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-create-roles-test"
   tags = {
     Test = "true"
   }
-
-  roles = [for role in local.roles : merge(local.role_base, role)]
 }
 
 output "create_roles" {

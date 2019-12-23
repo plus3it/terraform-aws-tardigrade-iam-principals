@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### 4.0.0
 
-**Released**: Not yet released
+**Released**: 2019.12.23
 
 **Commit Delta**: [Change from 3.1.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/3.1.0...4.0.0)
 
@@ -15,13 +15,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 *   **WARNING**: This release renames the `dependencies` variable to `policy_arns`,
     as policy attachments are the only resource in the module that can cause race
     conditions requiring explicit dependency management.
+*   **WARNING**: This release deprecates and removes module-level variables used to
+    set role and user attributes. These variables were used to set default values
+    that would be applied to every role and user. However, because this module uses
+    objects for the role and user schemas, all those attributes were required to
+    be set in each role/user object anyway. That made the module-level variables
+    duplicative and the supporting code was overly complicated. Instead, to set
+    default values in the same way, define an object with the defaults and merge
+    the default object into each role and user object. See the `tests/` directory
+    for examples.
 *   The `policy_arns` variable improves dependency handling during replacing updates
     of policies, as it is used directly (and only) as an attribute in the role/user
     policy attachment. Because it is not used in the `for_each` expressions, users
     can pass the output of another resource to `policy_arns`. Being used as an attribute
     is how Terraform establishes the tree for dependency ordering. See [PR #38](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/38).
-
-*   Adds support for managing IAM user access keys
 
 ### 3.1.0
 
