@@ -72,6 +72,7 @@ locals {
     inline_policies       = []
     description           = null
     force_detach_policies = null
+    instance_profile      = null
     max_session_duration  = null
     path                  = null
     permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
@@ -117,6 +118,10 @@ locals {
     },
     {
       name = "tardigrade-role-epsilon-${local.test_id}"
+    },
+    {
+      name             = "tardigrade-role-phi-${local.test_id}"
+      instance_profile = true
     },
   ]
 
