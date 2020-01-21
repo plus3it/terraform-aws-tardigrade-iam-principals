@@ -11,12 +11,13 @@ variable "policy_arns" {
 }
 
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `instance_profile` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
   type = list(object({
     name                  = string
     assume_role_policy    = string
     description           = string
     force_detach_policies = bool
+    instance_profile      = bool
     max_session_duration  = number
     path                  = string
     permissions_boundary  = string
