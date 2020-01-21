@@ -82,7 +82,7 @@ resource "aws_iam_role_policy" "this" {
 
 # attach an instance profile to the IAM roles
 resource "aws_iam_instance_profile" "this" {
-  for_each = { for name, role in local.roles_map : name => role if var.create_roles && lookup(role, "instance_profile", false) != false }
+  for_each = { for name, role in local.roles_map : name => role if var.create_roles && lookup(role, "instance_profile", null) == true }
 
   name = aws_iam_role.this[each.key].id
   role = aws_iam_role.this[each.key].id
