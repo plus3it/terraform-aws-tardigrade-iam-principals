@@ -2,16 +2,24 @@
 
 Terraform module to create IAM roles
 
+
+<!-- BEGIN TFDOCS -->
+## Providers
+
+| Name | Version |
+|------|---------|
+| aws | n/a |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| create\_roles | Controls whether to create IAM roles | bool | `"true"` | no |
-| policy\_arns | List of all managed policy ARNs used in the roles object. This is needed to properly order policy attachments/detachments on resource cycles | list(string) | `<list>` | no |
-| roles | Schema list of IAM roles, consisting of `name`, `assume\_role\_policy`, `policy\_arns` list \(OPTIONAL\), `inline\_policies` schema list \(OPTIONAL\), `description` \(OPTIONAL\), `force\_detach\_policies` \(OPTIONAL\), `instance\_profile` \(OPTIONAL\), `max\_session\_duration` \(OPTIONAL\), `path` \(OPTIONAL\), `permissions\_boundary` \(OPTIONAL\), `tags` \(OPTIONAL\) | object | `<list>` | no |
-| tags | Map of tags to apply to the IAM roles. Merged with tags set per-role in the role-schema | map(string) | `<map>` | no |
-| template\_paths | Paths to the directories containing the IAM policy templates | list(string) | n/a | yes |
-| template\_vars | Map of input variables and values for the IAM policy templates. | map(string) | `<map>` | no |
+|------|-------------|------|---------|:-----:|
+| template\_paths | Paths to the directories containing the IAM policy templates | `list(string)` | n/a | yes |
+| create\_roles | Controls whether to create IAM roles | `bool` | `true` | no |
+| policy\_arns | List of all managed policy ARNs used in the roles object. This is needed to properly order policy attachments/detachments on resource cycles | `list(string)` | `[]` | no |
+| roles | Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `instance_profile` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL) | <pre>list(object({<br>    name                  = string<br>    assume_role_policy    = string<br>    description           = string<br>    force_detach_policies = bool<br>    instance_profile      = bool<br>    max_session_duration  = number<br>    path                  = string<br>    permissions_boundary  = string<br>    tags                  = map(string)<br>    policy_arns           = list(string)<br>    inline_policies = list(object({<br>      name     = string<br>      template = string<br>    }))<br>  }))<br></pre> | `[]` | no |
+| tags | Map of tags to apply to the IAM roles. Merged with tags set per-role in the role-schema | `map(string)` | `{}` | no |
+| template\_vars | Map of input variables and values for the IAM policy templates. | `map(string)` | `{}` | no |
 
 ## Outputs
 
@@ -19,3 +27,4 @@ Terraform module to create IAM roles
 |------|-------------|
 | roles | IAM role resources |
 
+<!-- END TFDOCS -->
