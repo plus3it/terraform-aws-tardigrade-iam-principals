@@ -13,3 +13,11 @@
 
 # ignore log file
 iam_handler.log
+
+# tardigrade-ci
+.tardigrade-ci
+tardigrade-ci/
+
+# eclint
+.git/
+
