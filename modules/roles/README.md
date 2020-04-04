@@ -4,6 +4,12 @@ Terraform module to create IAM roles
 
 
 <!-- BEGIN TFDOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
+
 ## Providers
 
 | Name | Version |
@@ -13,7 +19,7 @@ Terraform module to create IAM roles
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | template\_paths | Paths to the directories containing the IAM policy templates | `list(string)` | n/a | yes |
 | create\_roles | Controls whether to create IAM roles | `bool` | `true` | no |
 | policy\_arns | List of all managed policy ARNs used in the roles object. This is needed to properly order policy attachments/detachments on resource cycles | `list(string)` | `[]` | no |
