@@ -4,6 +4,12 @@ Terraform module to create IAM users
 
 
 <!-- BEGIN TFDOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
+
 ## Providers
 
 | Name | Version |
@@ -13,7 +19,7 @@ Terraform module to create IAM users
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | template\_paths | Paths to the directories containing the templates for IAM policies and trusts | `list(string)` | n/a | yes |
 | create\_users | Controls whether an IAM user will be created | `bool` | `true` | no |
 | policy\_arns | List of all managed policy ARNs used in the users object. This is needed to properly order policy attachments/detachments on resource cycles | `list(string)` | `[]` | no |

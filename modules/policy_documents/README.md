@@ -4,6 +4,10 @@ Terraform module to merge policy document templates and apply template variables
 
 
 <!-- BEGIN TFDOCS -->
+## Requirements
+
+No requirements.
+
 ## Providers
 
 | Name | Version |
@@ -14,7 +18,7 @@ Terraform module to merge policy document templates and apply template variables
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | template\_paths | Paths to the directories containing the IAM policy templates | `list(string)` | n/a | yes |
 | create\_policy\_documents | Controls whether to process IAM policy documents | `bool` | `true` | no |
 | policies | Schema list of policy objects, consisting of `name`, and `template` policy filename (relative to `template_paths`) | <pre>list(object({<br>    name     = string<br>    template = string<br>  }))</pre> | `[]` | no |
