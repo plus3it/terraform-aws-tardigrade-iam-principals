@@ -1,3 +1,9 @@
+variable "create_groups" {
+  description = "Controls whether to create IAM groups"
+  type        = bool
+  default     = true
+}
+
 variable "create_policies" {
   description = "Controls whether to create IAM policies"
   type        = bool
@@ -22,8 +28,23 @@ variable "description" {
   default     = null
 }
 
+variable "groups" {
+  description = "Schema list of IAM groups"
+  type = list(object({
+    name        = string
+    path        = string
+    policy_arns = list(string)
+    user_names  = list(string)
+    inline_policies = list(object({
+      name     = string
+      template = string
+    }))
+  }))
+  default = []
+}
+
 variable "policy_arns" {
-  description = "List of all managed policy ARNs used in the roles and users objects. This is needed to properly order policy attachments/detachments on resource cycles"
+  description = "List of all managed policy ARNs used in the roles, groups, and users objects. This is needed to properly order policy attachments/detachments on resource cycles"
   type        = list(string)
   default     = []
 }
@@ -97,4 +118,10 @@ variable "users" {
     }))
   }))
   default = []
+}
+
+variable "user_names" {
+  description = "List of all IAM user names used in the groups object. This is needed to properly order group membership attachments/detachments on resource cycles"
+  type        = list(string)
+  default     = []
 }
