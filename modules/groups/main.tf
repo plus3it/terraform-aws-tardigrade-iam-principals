@@ -77,5 +77,5 @@ resource "aws_iam_user_group_membership" "this" {
   for_each = var.create_groups ? { for user in local.users : user.id => user } : {}
 
   groups = [aws_iam_group.this[each.value.group_name].id]
-  user   = each.value.user
+  user   = var.user_names[index(var.user_names, each.value.user)]
 }

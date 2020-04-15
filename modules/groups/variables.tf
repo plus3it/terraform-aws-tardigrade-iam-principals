@@ -35,3 +35,9 @@ variable "groups" {
   }))
   default = []
 }
+
+variable "user_names" {
+  description = "List of all IAM user names used in the groups object. This is needed to properly order group membership attachments/detachments on resource cycles"
+  type        = list(string)
+  default     = []
+}

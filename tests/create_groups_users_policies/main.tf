@@ -35,8 +35,9 @@ module "create_groups" {
     aws = aws
   }
 
-  policy_arns = [for policy in module.policies.policies : policy.arn]
   groups      = [for group in local.groups : merge(local.group_base, group)]
+  policy_arns = [for policy in module.policies.policies : policy.arn]
+  user_names  = local.user_names
 
   template_paths = ["${path.module}/../templates/"]
   template_vars = {
@@ -65,6 +66,11 @@ locals {
   policy_arns = [
     "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}",
     "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}",
+  ]
+
+  user_names = [
+    "tardigrade-user-alpha-${local.test_id}",
+    "tardigrade-user-beta-${local.test_id}",
   ]
 
   inline_policies = [
