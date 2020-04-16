@@ -4,6 +4,50 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 4.1.0
+
+**Released**: 2020.04.15
+
+**Commit Delta**: [Change from 4.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.0.1...4.1.0)
+
+**Summary**:
+
+*   Adds a `groups` module for managing IAM Groups and group membership. See
+    [PR #72](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/72).
+
+### 4.0.4
+
+**Released**: 2020.01.24
+
+**Commit Delta**: [Change from 4.0.3 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.0.3...4.0.4)
+
+**Summary**:
+
+*   Improves `policy_document` handling, avoiding an edge case with lookup reference errors. See
+    [PR #47](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/47).
+
+### 4.0.3
+
+**Released**: 2020.01.21
+
+**Commit Delta**: [Change from 4.0.2 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.0.2...4.0.3)
+
+**Summary**:
+
+*   Handles `instance_profile = null` properly to negate the resource. See
+    [PR #46](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/46).
+
+### 4.0.2
+
+**Released**: 2020.01.21
+
+**Commit Delta**: [Change from 4.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.0.1...4.0.2)
+
+**Summary**:
+
+*   Adds `instance_profile` to roles object so the profile is actually created. See
+    [PR #45](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/45).
+
 ### 4.0.1
 
 **Released**: 2019.12.23

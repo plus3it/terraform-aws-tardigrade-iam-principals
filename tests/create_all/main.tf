@@ -24,6 +24,14 @@ locals {
     "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}",
   ]
 
+  user_names = [
+    "tardigrade-user-alpha-${local.test_id}",
+    "tardigrade-user-beta-${local.test_id}",
+    "tardigrade-user-chi-${local.test_id}",
+    "tardigrade-user-delta-${local.test_id}",
+    "tardigrade-user-epsilon-${local.test_id}",
+  ]
+
   access_keys = [
     {
       name = "tardigrade-alpha-${local.test_id}"
@@ -61,6 +69,13 @@ locals {
     },
   ]
 
+  group_base = {
+    inline_policies = []
+    path            = null
+    policy_arns     = []
+    user_names      = []
+  }
+
   policy_base = {
     path        = null
     description = null
@@ -88,6 +103,33 @@ locals {
     permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
     tags                 = {}
   }
+
+  groups = [
+    {
+      name            = "tardigrade-group-alpha-${local.test_id}"
+      inline_policies = local.inline_policies
+      policy_arns     = local.policy_arns
+      path            = "/tardigrade/alpha/"
+      user_names      = local.user_names
+    },
+    {
+      name            = "tardigrade-group-beta-${local.test_id}"
+      inline_policies = local.inline_policies
+      policy_arns     = local.policy_arns
+      user_names      = ["tardigrade-user-beta-${local.test_id}"]
+    },
+    {
+      name        = "tardigrade-group-chi-${local.test_id}"
+      policy_arns = local.policy_arns
+    },
+    {
+      name            = "tardigrade-group-delta-${local.test_id}"
+      inline_policies = local.inline_policies
+    },
+    {
+      name = "tardigrade-group-epsilon-${local.test_id}"
+    },
+  ]
 
   roles = [
     {
@@ -163,8 +205,10 @@ module "create_all" {
   create_policies = true
   create_roles    = true
   create_users    = true
+  create_groups   = true
 
   policies = [for policy in local.managed_policies : merge(local.policy_base, policy)]
+  groups   = [for group in local.groups : merge(local.group_base, group)]
   roles    = [for role in local.roles : merge(local.role_base, role)]
   users    = [for user in local.users : merge(local.user_base, user)]
 

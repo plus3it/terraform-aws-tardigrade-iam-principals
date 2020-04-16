@@ -1,3 +1,13 @@
+output "groups" {
+  description = "IAM group resources"
+  value       = length(module.groups) > 0 ? module.groups.groups : null
+}
+
+output "group_memberships" {
+  description = "IAM group membership resources"
+  value       = length(module.groups) > 0 ? module.groups.group_memberships : null
+}
+
 output "policies" {
   description = "IAM managed policy resources"
   value       = length(module.policies) > 0 ? module.policies.policies : null

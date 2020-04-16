@@ -7,6 +7,11 @@ locals {
     var.policy_arns,
     [for policy in module.policies.policies : policy.arn]
   ))
+
+  user_names = distinct(concat(
+    var.user_names,
+    [for user in module.users.users : user.name]
+  ))
 }
 
 module "policies" {
@@ -17,6 +22,18 @@ module "policies" {
   template_vars   = var.template_vars
 
   policies = var.policies
+}
+
+module "groups" {
+  source = "./modules/groups/"
+
+  policy_arns = local.policy_arns
+  user_names  = local.user_names
+
+  create_groups  = var.create_groups
+  groups         = var.groups
+  template_paths = var.template_paths
+  template_vars  = var.template_vars
 }
 
 module "roles" {
