@@ -29,8 +29,9 @@ variable "groups" {
     policy_arns = list(string)
     user_names  = list(string)
     inline_policies = list(object({
-      name     = string
-      template = string
+      name          = string
+      template      = string
+      template_vars = map(string)
     }))
   }))
   default = []

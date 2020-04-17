@@ -6,10 +6,11 @@ locals {
   inline_policies = flatten([
     for user in var.users : [
       for inline_policy in lookup(user, "inline_policies", []) : {
-        id          = "${user.name}:${inline_policy.name}"
-        user_name   = user.name
-        policy_name = inline_policy.name
-        template    = inline_policy.template
+        id            = "${user.name}:${inline_policy.name}"
+        user_name     = user.name
+        policy_name   = inline_policy.name
+        template      = inline_policy.template
+        template_vars = inline_policy.template_vars
       }
     ]
   ])
@@ -43,7 +44,12 @@ module "inline_policy_documents" {
 
   create_policy_documents = var.create_users
 
-  policies       = [for policy_map in local.inline_policies : { name = policy_map.id, template = policy_map.template }]
+  policies = [for policy_map in local.inline_policies : {
+    name          = policy_map.id,
+    template      = policy_map.template
+    template_vars = policy_map.template_vars
+  }]
+
   template_paths = var.template_paths
   template_vars  = var.template_vars
 }

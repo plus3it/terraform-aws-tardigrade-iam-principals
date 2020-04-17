@@ -37,8 +37,9 @@ variable "users" {
     tags                 = map(string)
     policy_arns          = list(string)
     inline_policies = list(object({
-      name     = string
-      template = string
+      name          = string
+      template      = string
+      template_vars = map(string)
     }))
     access_keys = list(object({
       name    = string

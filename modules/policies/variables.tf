@@ -7,10 +7,11 @@ variable "create_policies" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    name        = string
-    template    = string
-    description = string
-    path        = string
+    description   = string
+    name          = string
+    path          = string
+    template      = string
+    template_vars = map(string)
   }))
   default = []
 }

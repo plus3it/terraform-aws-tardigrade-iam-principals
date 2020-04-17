@@ -7,8 +7,9 @@ variable "create_policy_documents" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    name     = string
-    template = string
+    name          = string
+    template      = string
+    template_vars = map(string)
   }))
   default = []
 }

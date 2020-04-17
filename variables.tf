@@ -30,8 +30,9 @@ variable "groups" {
     policy_arns = list(string)
     user_names  = list(string)
     inline_policies = list(object({
-      name     = string
-      template = string
+      name          = string
+      template      = string
+      template_vars = map(string)
     }))
   }))
   default = []
@@ -46,10 +47,11 @@ variable "policy_arns" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    name        = string
-    template    = string
-    description = string
-    path        = string
+    description   = string
+    name          = string
+    path          = string
+    template      = string
+    template_vars = map(string)
   }))
   default = []
 }
@@ -68,8 +70,9 @@ variable "roles" {
     tags                  = map(string)
     policy_arns           = list(string)
     inline_policies = list(object({
-      name     = string
-      template = string
+      name          = string
+      template      = string
+      template_vars = map(string)
     }))
   }))
   default = []
@@ -102,8 +105,9 @@ variable "users" {
     tags                 = map(string)
     policy_arns          = list(string)
     inline_policies = list(object({
-      name     = string
-      template = string
+      name          = string
+      template      = string
+      template_vars = map(string)
     }))
     access_keys = list(object({
       name    = string

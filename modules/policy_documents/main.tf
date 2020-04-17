@@ -17,5 +17,5 @@ data "template_file" "this" {
   for_each = var.create_policy_documents ? local.policies_map : {}
 
   template = data.external.this[each.key].result["policy"]
-  vars     = var.template_vars
+  vars     = merge(var.template_vars, each.value.template_vars)
 }
