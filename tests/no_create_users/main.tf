@@ -4,10 +4,10 @@ provider aws {
 
 module "no_create_users" {
   source = "../../modules/users/"
+
   providers = {
     aws = aws
   }
 
-  create_users   = false
-  template_paths = []
+  create_users = false
 }

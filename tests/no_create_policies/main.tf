@@ -4,6 +4,7 @@ provider aws {
 
 module "policies" {
   source = "../../modules/policies/"
+
   providers = {
     aws = aws
   }

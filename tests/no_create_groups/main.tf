@@ -4,10 +4,10 @@ provider aws {
 
 module "no_create_groups" {
   source = "../../modules/groups/"
+
   providers = {
     aws = aws
   }
 
-  create_groups  = false
-  template_paths = []
+  create_groups = false
 }

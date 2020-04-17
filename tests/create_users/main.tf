@@ -20,6 +20,21 @@ locals {
 
   policy_arns = length(data.terraform_remote_state.prereq.outputs) > 0 ? [for policy in data.terraform_remote_state.prereq.outputs.policies : policy.arn] : []
 
+  policy_base = {
+    path          = null
+    description   = null
+    template_vars = local.template_vars_base
+    template_paths = [
+      "${path.module}/../templates/"
+    ]
+  }
+
+  template_vars_base = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
+  }
+
   inline_policies = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
@@ -59,7 +74,7 @@ locals {
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       access_keys          = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
@@ -71,7 +86,7 @@ locals {
     {
       name                 = "tardigrade-user-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       permissions_boundary = null
     },
     {
@@ -80,7 +95,7 @@ locals {
     },
     {
       name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
@@ -90,19 +105,13 @@ locals {
 
 module "create_users" {
   source = "../../modules/users/"
+
   providers = {
     aws = aws
   }
 
   policy_arns = local.policy_arns
   users       = [for user in local.users : merge(local.user_base, user)]
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
-  }
 
   tags = {
     Test = "true"

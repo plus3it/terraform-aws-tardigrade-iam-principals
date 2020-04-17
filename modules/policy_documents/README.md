@@ -19,10 +19,8 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| template\_paths | Paths to the directories containing the IAM policy templates | `list(string)` | n/a | yes |
 | create\_policy\_documents | Controls whether to process IAM policy documents | `bool` | `true` | no |
-| policies | Schema list of policy objects, consisting of `name`, and `template` policy filename (relative to `template_paths`) | <pre>list(object({<br>    name     = string<br>    template = string<br>  }))</pre> | `[]` | no |
-| template\_vars | Map of template input variables for IAM policy templates | `map(string)` | `{}` | no |
+| policies | Schema list of policy objects | <pre>list(object({<br>    name           = string<br>    template       = string<br>    template_vars  = map(string)<br>    template_paths = list(string)<br>  }))</pre> | `[]` | no |
 
 ## Outputs
 

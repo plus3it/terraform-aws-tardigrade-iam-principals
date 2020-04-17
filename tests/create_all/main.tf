@@ -77,12 +77,22 @@ locals {
   }
 
   policy_base = {
-    path        = null
-    description = null
+    path          = null
+    description   = null
+    template_vars = local.template_vars_base
+    template_paths = [
+      "${path.module}/../templates/"
+    ]
+  }
+
+  template_vars_base = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
   }
 
   role_base = {
-    assume_role_policy    = "trusts/template.json"
+    assume_role_template  = "trusts/template.json"
     policy_arns           = []
     inline_policies       = []
     description           = null
@@ -92,6 +102,14 @@ locals {
     path                  = null
     permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
     tags                  = {}
+    assume_role_template_paths = [
+      "${path.module}/../templates/"
+    ]
+    assume_role_template_vars = {
+      "account_id" = data.aws_caller_identity.current.account_id
+      "partition"  = data.aws_partition.current.partition
+      "region"     = data.aws_region.current.name
+    }
   }
 
   user_base = {
@@ -107,14 +125,14 @@ locals {
   groups = [
     {
       name            = "tardigrade-group-alpha-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       policy_arns     = local.policy_arns
       path            = "/tardigrade/alpha/"
       user_names      = local.user_names
     },
     {
       name            = "tardigrade-group-beta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       policy_arns     = local.policy_arns
       user_names      = ["tardigrade-user-beta-${local.test_id}"]
     },
@@ -124,7 +142,7 @@ locals {
     },
     {
       name            = "tardigrade-group-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-group-epsilon-${local.test_id}"
@@ -135,7 +153,7 @@ locals {
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       policy_arns           = local.policy_arns
-      inline_policies       = local.inline_policies
+      inline_policies       = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -148,7 +166,7 @@ locals {
     {
       name            = "tardigrade-role-beta-${local.test_id}"
       policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name        = "tardigrade-role-chi-${local.test_id}"
@@ -156,7 +174,7 @@ locals {
     },
     {
       name            = "tardigrade-role-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-role-epsilon-${local.test_id}"
@@ -171,7 +189,7 @@ locals {
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       access_keys          = [for access_key in local.access_keys : merge(local.access_key_base, access_key)]
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
@@ -183,7 +201,7 @@ locals {
     {
       name            = "tardigrade-user-beta-${local.test_id}"
       policy_arns     = local.policy_arns
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name        = "tardigrade-user-chi-${local.test_id}"
@@ -191,7 +209,7 @@ locals {
     },
     {
       name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
@@ -211,13 +229,6 @@ module "create_all" {
   groups   = [for group in local.groups : merge(local.group_base, group)]
   roles    = [for role in local.roles : merge(local.role_base, role)]
   users    = [for user in local.users : merge(local.user_base, user)]
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
-  }
 
   tags = {
     Test = "true"

@@ -4,10 +4,10 @@ provider aws {
 
 module "no_create_roles" {
   source = "../../modules/roles/"
+
   providers = {
     aws = aws
   }
 
-  create_roles   = false
-  template_paths = []
+  create_roles = false
 }

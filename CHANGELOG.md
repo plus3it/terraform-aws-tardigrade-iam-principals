@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 5.0.0
+
+**Released**: 2020.04.17
+
+**Commit Delta**: [Change from 4.1.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/4.1.0...5.0.0)
+
+**Summary**:
+
+*   Moves `template_paths` and `template_vars` into the policy object for all modules. See
+    [PR #73](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/73).
+*   `roles` module
+    *   Renames `assume_role_policy` in the role object to `assume_role_template` to reflect
+    that this is indeed a template
+    *   Adds `assume_role_template_paths` and `assume_role_template_vars` to allow different
+    paths/vars for the assume_role_template than what was applied to policies.
+
 ### 4.1.0
 
 **Released**: 2020.04.15

@@ -6,10 +6,12 @@ locals {
   inline_policies = flatten([
     for group in var.groups : [
       for inline_policy in lookup(group, "inline_policies", []) : {
-        id          = "${group.name}:${inline_policy.name}"
-        group_name  = group.name
-        policy_name = inline_policy.name
-        template    = inline_policy.template
+        id             = "${group.name}:${inline_policy.name}"
+        group_name     = group.name
+        policy_name    = inline_policy.name
+        template       = inline_policy.template
+        template_paths = inline_policy.template_paths
+        template_vars  = inline_policy.template_vars
       }
     ]
   ])
@@ -42,9 +44,14 @@ module "inline_policy_documents" {
 
   create_policy_documents = var.create_groups
 
-  policies       = [for policy_map in local.inline_policies : { name = policy_map.id, template = policy_map.template }]
-  template_paths = var.template_paths
-  template_vars  = var.template_vars
+  policies = [
+    for policy_map in local.inline_policies : {
+      name           = policy_map.id,
+      template       = policy_map.template
+      template_paths = policy_map.template_paths
+      template_vars  = policy_map.template_vars
+    }
+  ]
 }
 
 # create the IAM groups
