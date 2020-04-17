@@ -23,7 +23,6 @@ No provider.
 | create\_policies | Controls whether to create IAM policies | `bool` | `true` | no |
 | create\_roles | Controls whether to create IAM roles | `bool` | `true` | no |
 | create\_users | Controls whether an IAM user will be created | `bool` | `true` | no |
-| description | Description of the roles. May also be set per-role in the role-schema | `string` | `null` | no |
 | groups | Schema list of IAM groups | <pre>list(object({<br>    name        = string<br>    path        = string<br>    policy_arns = list(string)<br>    user_names  = list(string)<br>    inline_policies = list(object({<br>      name     = string<br>      template = string<br>    }))<br>  }))</pre> | `[]` | no |
 | policies | Schema list of policy objects, consisting of `name`, `template` policy filename (relative to `template_paths`), (OPTIONAL) `description`, (OPTIONAL) `path` | <pre>list(object({<br>    name        = string<br>    template    = string<br>    description = string<br>    path        = string<br>  }))</pre> | `[]` | no |
 | policy\_arns | List of all managed policy ARNs used in the roles, groups, and users objects. This is needed to properly order policy attachments/detachments on resource cycles | `list(string)` | `[]` | no |

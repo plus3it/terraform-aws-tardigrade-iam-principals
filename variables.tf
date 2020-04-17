@@ -22,12 +22,6 @@ variable "create_users" {
   default     = true
 }
 
-variable "description" {
-  description = "Description of the roles. May also be set per-role in the role-schema"
-  type        = string
-  default     = null
-}
-
 variable "groups" {
   description = "Schema list of IAM groups"
   type = list(object({
