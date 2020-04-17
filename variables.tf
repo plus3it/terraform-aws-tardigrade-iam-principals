@@ -30,9 +30,10 @@ variable "groups" {
     policy_arns = list(string)
     user_names  = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
   }))
   default = []
@@ -47,11 +48,12 @@ variable "policy_arns" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    description   = string
-    name          = string
-    path          = string
-    template      = string
-    template_vars = map(string)
+    description    = string
+    name           = string
+    path           = string
+    template       = string
+    template_paths = list(string)
+    template_vars  = map(string)
   }))
   default = []
 }
@@ -59,20 +61,23 @@ variable "policies" {
 variable "roles" {
   description = "Schema list of IAM roles"
   type = list(object({
-    name                  = string
-    assume_role_policy    = string
-    description           = string
-    force_detach_policies = bool
-    instance_profile      = bool
-    max_session_duration  = number
-    path                  = string
-    permissions_boundary  = string
-    tags                  = map(string)
-    policy_arns           = list(string)
+    name                       = string
+    assume_role_template       = string
+    assume_role_template_paths = list(string)
+    assume_role_template_vars  = map(string)
+    description                = string
+    force_detach_policies      = bool
+    instance_profile           = bool
+    max_session_duration       = number
+    path                       = string
+    permissions_boundary       = string
+    tags                       = map(string)
+    policy_arns                = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
   }))
   default = []
@@ -94,9 +99,10 @@ variable "users" {
     tags                 = map(string)
     policy_arns          = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
     access_keys = list(object({
       name    = string

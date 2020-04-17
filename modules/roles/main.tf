@@ -36,9 +36,9 @@ module "assume_role_policy_documents" {
   policies = [
     for role in var.roles : {
       name           = role.name,
-      template       = role.assume_role_policy
-      template_paths = role.template_paths
-      template_vars  = role.template_vars
+      template       = role.assume_role_template
+      template_paths = role.assume_role_template_paths
+      template_vars  = role.assume_role_template_vars
     }
   ]
 }
