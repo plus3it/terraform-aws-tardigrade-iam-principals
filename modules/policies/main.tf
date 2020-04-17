@@ -6,14 +6,14 @@ module "policy_documents" {
   source = "../policy_documents"
 
   create_policy_documents = var.create_policies
-  policies                = [for policy in var.policies : {
-    name          = policy.name,
-    template      = policy.template
-    template_vars = policy.template_vars
-  }]
-
-  template_paths          = var.template_paths
-  template_vars           = var.template_vars
+  policies = [
+    for policy in var.policies : {
+      name           = policy.name,
+      template       = policy.template
+      template_paths = policy.template_paths
+      template_vars  = policy.template_vars
+    }
+  ]
 }
 
 resource "aws_iam_policy" "this" {

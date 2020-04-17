@@ -84,17 +84,6 @@ variable "tags" {
   default     = {}
 }
 
-variable "template_paths" {
-  description = "Paths to the directories containing the IAM policy templates"
-  type        = list(string)
-}
-
-variable "template_vars" {
-  description = "Map of input variables and values for the IAM policy templates."
-  type        = map(string)
-  default     = {}
-}
-
 variable "users" {
   description = "Schema list of IAM users"
   type = list(object({

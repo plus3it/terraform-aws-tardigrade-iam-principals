@@ -7,20 +7,10 @@ variable "create_policy_documents" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    name          = string
-    template      = string
-    template_vars = map(string)
+    name           = string
+    template       = string
+    template_vars  = map(string)
+    template_paths = list(string)
   }))
   default = []
-}
-
-variable "template_paths" {
-  description = "Paths to the directories containing the IAM policy templates"
-  type        = list(string)
-}
-
-variable "template_vars" {
-  description = "Map of template input variables for IAM policy templates"
-  type        = map(string)
-  default     = {}
 }

@@ -10,17 +10,6 @@ variable "policy_arns" {
   default     = []
 }
 
-variable "template_paths" {
-  description = "Paths to the directories containing the templates for IAM policies and trusts"
-  type        = list(string)
-}
-
-variable "template_vars" {
-  description = "Map of input variables for IAM trust and policy templates"
-  type        = map(string)
-  default     = {}
-}
-
 variable "groups" {
   description = "Schema list of IAM groups"
   type = list(object({
@@ -29,9 +18,10 @@ variable "groups" {
     policy_arns = list(string)
     user_names  = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
   }))
   default = []

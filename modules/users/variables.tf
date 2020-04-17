@@ -10,17 +10,6 @@ variable "policy_arns" {
   default     = []
 }
 
-variable "template_paths" {
-  description = "Paths to the directories containing the templates for IAM policies and trusts"
-  type        = list(string)
-}
-
-variable "template_vars" {
-  description = "Map of input variables for IAM trust and policy templates"
-  type        = map(string)
-  default     = {}
-}
-
 variable "tags" {
   description = "Map of tags to apply to the IAM users. Merged with tags set per-user in the user-schema"
   type        = map(string)
@@ -37,9 +26,10 @@ variable "users" {
     tags                 = map(string)
     policy_arns          = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
     access_keys = list(object({
       name    = string

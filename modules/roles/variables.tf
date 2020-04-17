@@ -24,9 +24,10 @@ variable "roles" {
     tags                  = map(string)
     policy_arns           = list(string)
     inline_policies = list(object({
-      name          = string
-      template      = string
-      template_vars = map(string)
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
     }))
   }))
   default = []
@@ -34,17 +35,6 @@ variable "roles" {
 
 variable "tags" {
   description = "Map of tags to apply to the IAM roles. Merged with tags set per-role in the role-schema"
-  type        = map(string)
-  default     = {}
-}
-
-variable "template_paths" {
-  description = "Paths to the directories containing the IAM policy templates"
-  type        = list(string)
-}
-
-variable "template_vars" {
-  description = "Map of input variables and values for the IAM policy templates."
   type        = map(string)
   default     = {}
 }

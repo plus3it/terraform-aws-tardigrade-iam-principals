@@ -6,11 +6,12 @@ locals {
   inline_policies = flatten([
     for role in var.roles : [
       for inline_policy in lookup(role, "inline_policies", []) : {
-        id            = "${role.name}:${inline_policy.name}"
-        role_name     = role.name
-        policy_name   = inline_policy.name
-        template      = inline_policy.template
-        template_vars = inline_policy.template_vars
+        id             = "${role.name}:${inline_policy.name}"
+        role_name      = role.name
+        policy_name    = inline_policy.name
+        template       = inline_policy.template
+        template_paths = inline_policy.template_paths
+        template_vars  = inline_policy.template_vars
       }
     ]
   ])
@@ -32,14 +33,14 @@ module "assume_role_policy_documents" {
 
   create_policy_documents = var.create_roles
 
-  policies = [for role in var.roles : {
-    name          = role.name,
-    template      = role.assume_role_policy
-    template_vars = role.template_vars
-  }]
-
-  template_paths = var.template_paths
-  template_vars  = var.template_vars
+  policies = [
+    for role in var.roles : {
+      name           = role.name,
+      template       = role.assume_role_policy
+      template_paths = role.template_paths
+      template_vars  = role.template_vars
+    }
+  ]
 }
 
 module "inline_policy_documents" {
@@ -47,14 +48,14 @@ module "inline_policy_documents" {
 
   create_policy_documents = var.create_roles
 
-  policies = [for policy_map in local.inline_policies : {
-    name          = policy_map.id,
-    template      = policy_map.template
-    template_vars = policy_map.template_vars
-  }]
-
-  template_paths = var.template_paths
-  template_vars  = var.template_vars
+  policies = [
+    for policy_map in local.inline_policies : {
+      name           = policy_map.id,
+      template       = policy_map.template
+      template_paths = policy_map.template_paths
+      template_vars  = policy_map.template_vars
+    }
+  ]
 }
 
 # create the IAM roles
