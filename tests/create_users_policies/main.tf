@@ -35,8 +35,18 @@ locals {
   ]
 
   policy_base = {
-    path        = null
-    description = null
+    path          = null
+    description   = null
+    template_vars = local.template_vars_base
+    template_paths = [
+      "${path.module}/../templates/"
+    ]
+  }
+
+  template_vars_base = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
   }
 
   user_base = {
@@ -66,7 +76,7 @@ locals {
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
       permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
@@ -77,7 +87,7 @@ locals {
     {
       name                 = "tardigrade-user-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       permissions_boundary = null
     },
     {
@@ -86,7 +96,7 @@ locals {
     },
     {
       name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
@@ -96,15 +106,9 @@ locals {
 
 module "policies" {
   source = "../../modules/policies/"
+
   providers = {
     aws = aws
-  }
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
   }
 
   policies = [for policy in local.policies : merge(local.policy_base, policy)]
@@ -112,6 +116,7 @@ module "policies" {
 
 module "create_users" {
   source = "../../modules/users/"
+
   providers = {
     aws = aws
   }
@@ -128,13 +133,6 @@ module "create_users" {
 
   policy_arns = [for policy in module.policies.policies : policy.arn]
   users       = [for user in local.users : merge(local.user_base, user)]
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
-  }
 
   tags = {
     Test = "true"

@@ -35,12 +35,22 @@ locals {
   ]
 
   policy_base = {
-    path        = null
-    description = null
+    path          = null
+    description   = null
+    template_vars = local.template_vars_base
+    template_paths = [
+      "${path.module}/../templates/"
+    ]
+  }
+
+  template_vars_base = {
+    "account_id" = data.aws_caller_identity.current.account_id
+    "partition"  = data.aws_partition.current.partition
+    "region"     = data.aws_region.current.name
   }
 
   role_base = {
-    assume_role_policy    = "trusts/template.json"
+    assume_role_template  = "trusts/template.json"
     policy_arns           = []
     inline_policies       = []
     description           = null
@@ -50,6 +60,14 @@ locals {
     path                  = null
     permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
     tags                  = {}
+    assume_role_template_paths = [
+      "${path.module}/../templates/"
+    ]
+    assume_role_template_vars = {
+      "account_id" = data.aws_caller_identity.current.account_id
+      "partition"  = data.aws_partition.current.partition
+      "region"     = data.aws_region.current.name
+    }
   }
 
   policies = [
@@ -68,7 +86,7 @@ locals {
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       policy_arns           = local.policy_arns
-      inline_policies       = local.inline_policies
+      inline_policies       = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -81,7 +99,7 @@ locals {
     {
       name                 = "tardigrade-role-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = local.inline_policies
+      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
       permissions_boundary = null
     },
     {
@@ -90,7 +108,7 @@ locals {
     },
     {
       name            = "tardigrade-role-delta-${local.test_id}"
-      inline_policies = local.inline_policies
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
     },
     {
       name = "tardigrade-role-epsilon-${local.test_id}"
@@ -104,15 +122,9 @@ locals {
 
 module "policies" {
   source = "../../modules/policies/"
+
   providers = {
     aws = aws
-  }
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
   }
 
   policies = [for policy in local.policies : merge(local.policy_base, policy)]
@@ -120,6 +132,7 @@ module "policies" {
 
 module "create_roles" {
   source = "../../modules/roles/"
+
   providers = {
     aws = aws
   }
@@ -136,13 +149,6 @@ module "create_roles" {
 
   policy_arns = [for policy in module.policies.policies : policy.arn]
   roles       = [for role in local.roles : merge(local.role_base, role)]
-
-  template_paths = ["${path.module}/../templates/"]
-  template_vars = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
-  }
 
   tags = {
     Test = "true"
