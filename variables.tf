@@ -44,7 +44,7 @@ variable "policy_arns" {
 }
 
 variable "policies" {
-  description = "Schema list of policy objects, consisting of `name`, `template` policy filename (relative to `template_paths`), (OPTIONAL) `description`, (OPTIONAL) `path`"
+  description = "Schema list of policy objects"
   type = list(object({
     name        = string
     template    = string
@@ -55,7 +55,7 @@ variable "policies" {
 }
 
 variable "roles" {
-  description = "Schema list of IAM roles, consisting of `name`, `assume_role_policy`, `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `description` (OPTIONAL), `force_detach_policies` (OPTIONAL), `instance_profile` (OPTIONAL), `max_session_duration` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM roles"
   type = list(object({
     name                  = string
     assume_role_policy    = string
@@ -93,7 +93,7 @@ variable "template_vars" {
 }
 
 variable "users" {
-  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `access_keys` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM users"
   type = list(object({
     name                 = string
     force_destroy        = bool

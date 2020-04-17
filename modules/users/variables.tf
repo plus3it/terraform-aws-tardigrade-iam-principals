@@ -28,7 +28,7 @@ variable "tags" {
 }
 
 variable "users" {
-  description = "Schema list of IAM users, consisting of `name`, `path` (OPTIONAL), `policy_arns` list (OPTIONAL), `inline_policies` schema list (OPTIONAL), `access_keys` schema list (OPTIONAL), `force_destroy` (OPTIONAL), `path` (OPTIONAL), `permissions_boundary` (OPTIONAL), `tags` (OPTIONAL)"
+  description = "Schema list of IAM users"
   type = list(object({
     name                 = string
     force_destroy        = bool

@@ -5,7 +5,7 @@ variable "create_policy_documents" {
 }
 
 variable "policies" {
-  description = "Schema list of policy objects, consisting of `name`, and `template` policy filename (relative to `template_paths`)"
+  description = "Schema list of policy objects"
   type = list(object({
     name     = string
     template = string
