@@ -22,7 +22,8 @@ module "policy_documents" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 resource "random_string" "this" {
@@ -63,7 +64,7 @@ locals {
     account_id    = data.aws_caller_identity.current.account_id
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
-    random_string = random_string.this
+    random_string = random_string.this.result
   }
 }
 

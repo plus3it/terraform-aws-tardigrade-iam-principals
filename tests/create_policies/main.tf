@@ -26,15 +26,22 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   policies = [
     {
       name     = "tardigrade-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
       template = "policies/template.json"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          account_id = "foo"
+        }
+      )
     },
     {
       name     = "tardigrade-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
@@ -62,7 +69,15 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
+}
+
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
 }
 
 output "policies" {
