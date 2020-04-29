@@ -25,6 +25,13 @@ module "policy_documents" {
   policies = [for policy in local.policies : merge(local.policy_base, policy)]
 }
 
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+
 locals {
   policies = [
     {
@@ -53,9 +60,10 @@ locals {
   }
 
   template_vars_base = {
-    account_id = data.aws_caller_identity.current.account_id
-    partition  = data.aws_partition.current.partition
-    region     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this
   }
 }
 
