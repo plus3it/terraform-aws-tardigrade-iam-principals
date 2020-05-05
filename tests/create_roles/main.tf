@@ -30,9 +30,10 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   inline_policies = [
@@ -47,31 +48,46 @@ locals {
   ]
 
   role_base = {
-    assume_role_template  = "trusts/template.json"
-    policy_arns           = []
-    inline_policies       = []
     description           = null
     force_detach_policies = null
+    inline_policy_names   = []
     instance_profile      = null
     max_session_duration  = null
     path                  = null
     permissions_boundary  = data.terraform_remote_state.prereq.outputs.policies["tardigrade-alpha-create-roles-test"].arn
+    policy_arns           = []
     tags                  = {}
-    assume_role_template_paths = [
-      "${path.module}/../templates/"
-    ]
-    assume_role_template_vars = {
-      "account_id" = data.aws_caller_identity.current.account_id
-      "partition"  = data.aws_partition.current.partition
-      "region"     = data.aws_region.current.name
-    }
   }
+
+  assume_role_policies = [
+    for role in local.roles : {
+      name           = role.name
+      template       = "trusts/template.json"
+      template_paths = ["${path.module}/../templates/"]
+      template_vars  = local.template_vars_base
+    }
+  ]
+
+  role_inline_policies = [
+    {
+      name            = "tardigrade-role-alpha-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-role-beta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-role-delta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+  ]
 
   roles = [
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       policy_arns           = local.policy_arns
-      inline_policies       = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names   = local.inline_policies[*].name
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -84,7 +100,7 @@ locals {
     {
       name                 = "tardigrade-role-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names  = local.inline_policies[*].name
       permissions_boundary = null
     },
     {
@@ -92,8 +108,8 @@ locals {
       policy_arns = local.policy_arns
     },
     {
-      name            = "tardigrade-role-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      name                = "tardigrade-role-delta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name = "tardigrade-role-epsilon-${local.test_id}"
@@ -105,6 +121,13 @@ locals {
   ]
 }
 
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+
 module "create_roles" {
   source = "../../modules/roles/"
 
@@ -112,8 +135,10 @@ module "create_roles" {
     aws = aws
   }
 
-  policy_arns = local.policy_arns
-  roles       = [for role in local.roles : merge(local.role_base, role)]
+  assume_role_policies = local.assume_role_policies
+  inline_policies      = local.role_inline_policies
+  policy_arns          = local.policy_arns
+  roles                = [for role in local.roles : merge(local.role_base, role)]
 
   tags = {
     Test = "true"

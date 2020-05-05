@@ -44,15 +44,15 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   role_base = {
-    assume_role_template  = "trusts/template.json"
     policy_arns           = []
-    inline_policies       = []
+    inline_policy_names   = []
     description           = null
     force_detach_policies = null
     instance_profile      = null
@@ -60,14 +60,6 @@ locals {
     path                  = null
     permissions_boundary  = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
     tags                  = {}
-    assume_role_template_paths = [
-      "${path.module}/../templates/"
-    ]
-    assume_role_template_vars = {
-      "account_id" = data.aws_caller_identity.current.account_id
-      "partition"  = data.aws_partition.current.partition
-      "region"     = data.aws_region.current.name
-    }
   }
 
   policies = [
@@ -82,11 +74,35 @@ locals {
     },
   ]
 
+  assume_role_policies = [
+    for role in local.roles : {
+      name           = role.name
+      template       = "trusts/template.json"
+      template_paths = ["${path.module}/../templates/"]
+      template_vars  = local.template_vars_base
+    }
+  ]
+
+  role_inline_policies = [
+    {
+      name            = "tardigrade-role-alpha-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-role-beta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-role-delta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+  ]
+
   roles = [
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       policy_arns           = local.policy_arns
-      inline_policies       = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names   = local.inline_policies[*].name
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -99,7 +115,7 @@ locals {
     {
       name                 = "tardigrade-role-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names  = local.inline_policies[*].name
       permissions_boundary = null
     },
     {
@@ -107,8 +123,8 @@ locals {
       policy_arns = local.policy_arns
     },
     {
-      name            = "tardigrade-role-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      name                = "tardigrade-role-delta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name = "tardigrade-role-epsilon-${local.test_id}"
@@ -120,6 +136,13 @@ locals {
   ]
 }
 
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+
 module "policies" {
   source = "../../modules/policies/"
 
@@ -127,7 +150,8 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 module "create_roles" {
@@ -147,8 +171,10 @@ module "create_roles" {
   #  > To work around this, use the -target argument to first apply only the
   #  > resources that the for_each depends on.
 
-  policy_arns = [for policy in module.policies.policies : policy.arn]
-  roles       = [for role in local.roles : merge(local.role_base, role)]
+  assume_role_policies = local.assume_role_policies
+  inline_policies      = local.role_inline_policies
+  policy_arns          = [for policy in module.policies.policies : policy.arn]
+  roles                = [for role in local.roles : merge(local.role_base, role)]
 
   tags = {
     Test = "true"

@@ -1,7 +1,32 @@
+variable "assume_role_policies" {
+  description = "Schema list of assume role policy objects for the IAM Roles"
+  type = list(object({
+    name           = string
+    template       = string
+    template_paths = list(string)
+    template_vars  = map(string)
+  }))
+  default = []
+}
+
 variable "create_roles" {
   description = "Controls whether to create IAM roles"
   type        = bool
   default     = true
+}
+
+variable "inline_policies" {
+  description = "Schema list of IAM Role inline policies"
+  type = list(object({
+    name = string
+    inline_policies = list(object({
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
+    }))
+  }))
+  default = []
 }
 
 variable "policy_arns" {
@@ -13,24 +38,16 @@ variable "policy_arns" {
 variable "roles" {
   description = "Schema list of IAM roles"
   type = list(object({
-    name                       = string
-    assume_role_template       = string
-    assume_role_template_paths = list(string)
-    assume_role_template_vars  = map(string)
-    description                = string
-    force_detach_policies      = bool
-    instance_profile           = bool
-    max_session_duration       = number
-    path                       = string
-    permissions_boundary       = string
-    tags                       = map(string)
-    policy_arns                = list(string)
-    inline_policies = list(object({
-      name           = string
-      template       = string
-      template_paths = list(string)
-      template_vars  = map(string)
-    }))
+    name                  = string
+    description           = string
+    force_detach_policies = bool
+    inline_policy_names   = list(string)
+    instance_profile      = bool
+    max_session_duration  = number
+    path                  = string
+    permissions_boundary  = string
+    policy_arns           = list(string)
+    tags                  = map(string)
   }))
   default = []
 }

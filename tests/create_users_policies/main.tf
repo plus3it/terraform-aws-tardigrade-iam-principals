@@ -44,14 +44,15 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   user_base = {
     policy_arns          = []
-    inline_policies      = []
+    inline_policy_names  = []
     access_keys          = []
     force_destroy        = null
     path                 = null
@@ -72,11 +73,26 @@ locals {
     },
   ]
 
+  user_inline_policies = [
+    {
+      name            = "tardigrade-user-alpha-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-user-beta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-user-delta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+  ]
+
   users = [
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names  = local.inline_policies[*].name
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
       permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
@@ -87,7 +103,7 @@ locals {
     {
       name                 = "tardigrade-user-beta-${local.test_id}"
       policy_arns          = local.policy_arns
-      inline_policies      = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policy_names  = local.inline_policies[*].name
       permissions_boundary = null
     },
     {
@@ -95,13 +111,20 @@ locals {
       policy_arns = local.policy_arns
     },
     {
-      name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      name                = "tardigrade-user-delta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
     },
   ]
+}
+
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
 }
 
 module "policies" {
@@ -111,7 +134,8 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 module "create_users" {
@@ -131,8 +155,9 @@ module "create_users" {
   #  > To work around this, use the -target argument to first apply only the
   #  > resources that the for_each depends on.
 
-  policy_arns = [for policy in module.policies.policies : policy.arn]
-  users       = [for user in local.users : merge(local.user_base, user)]
+  inline_policies = local.user_inline_policies
+  policy_arns     = [for policy in module.policies.policies : policy.arn]
+  users           = [for user in local.users : merge(local.user_base, user)]
 
   tags = {
     Test = "true"

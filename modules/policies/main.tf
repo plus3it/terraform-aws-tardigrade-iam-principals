@@ -1,26 +1,21 @@
 locals {
-  policies_map = { for policy in var.policies : policy.name => policy }
+  policies = { for policy in var.policies : policy.name => policy }
 }
 
 module "policy_documents" {
   source = "../policy_documents"
 
   create_policy_documents = var.create_policies
-  policies = [
-    for policy in var.policies : {
-      name           = policy.name,
-      template       = policy.template
-      template_paths = policy.template_paths
-      template_vars  = policy.template_vars
-    }
-  ]
+
+  policies     = var.policies
+  policy_names = var.policy_names
 }
 
 resource "aws_iam_policy" "this" {
-  for_each = var.create_policies ? local.policies_map : {}
+  for_each = toset(var.create_policies ? var.policy_names : [])
 
-  name        = each.key
-  policy      = module.policy_documents.policies[each.key]
-  description = each.value.description
-  path        = each.value.path
+  name        = each.value
+  policy      = module.policy_documents.policies[each.value]
+  description = local.policies[each.value].description
+  path        = local.policies[each.value].path
 }

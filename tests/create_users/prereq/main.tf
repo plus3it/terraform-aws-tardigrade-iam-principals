@@ -51,7 +51,8 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 output "policies" {

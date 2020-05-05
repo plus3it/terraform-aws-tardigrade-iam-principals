@@ -1,17 +1,17 @@
 locals {
-  policies_map = { for item in var.policies : item.name => item }
+  policies = { for item in var.policies : item.name => item }
 }
 
 data "external" "this" {
-  for_each = var.create_policy_documents ? local.policies_map : {}
+  for_each = toset(var.create_policy_documents ? var.policy_names : [])
 
   program = ["python", "${path.module}/policy_document_handler.py", "-"]
-  query   = { for arg, val in each.value : arg => jsonencode(val) }
+  query   = { for arg, val in local.policies[each.value] : arg => jsonencode(val) }
 }
 
 data "template_file" "this" {
-  for_each = var.create_policy_documents ? local.policies_map : {}
+  for_each = toset(var.create_policy_documents ? var.policy_names : [])
 
-  template = data.external.this[each.key].result["policy"]
-  vars     = each.value.template_vars
+  template = data.external.this[each.value].result["policy"]
+  vars     = local.policies[each.value].template_vars
 }

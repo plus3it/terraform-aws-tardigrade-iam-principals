@@ -9,7 +9,8 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 module "users" {
@@ -19,7 +20,7 @@ module "users" {
     aws = aws
   }
 
-  policy_arns = [for policy in module.policies.policies : policy.arn]
+  policy_arns = local.policy_arns
   users       = [for user in local.users : merge(local.user_base, user)]
 }
 
@@ -30,9 +31,17 @@ module "create_groups" {
     aws = aws
   }
 
-  groups      = [for group in local.groups : merge(local.group_base, group)]
-  policy_arns = [for policy in module.policies.policies : policy.arn]
-  user_names  = local.user_names
+  groups          = [for group in local.groups : merge(local.group_base, group)]
+  inline_policies = local.group_inline_policies
+  policy_arns     = [for policy in module.policies.policies : policy.arn]
+  user_names      = local.user_names
+}
+
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
 }
 
 data "aws_caller_identity" "current" {}
@@ -74,7 +83,7 @@ locals {
 
   user_base = {
     policy_arns          = []
-    inline_policies      = []
+    inline_policy_names  = []
     access_keys          = []
     force_destroy        = null
     path                 = null
@@ -101,9 +110,10 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   policies = [
@@ -120,33 +130,48 @@ locals {
   ]
 
   group_base = {
-    inline_policies = []
-    path            = null
-    policy_arns     = []
-    user_names      = []
+    inline_policy_names = []
+    path                = null
+    policy_arns         = []
+    user_names          = []
   }
 
-  groups = [
+  group_inline_policies = [
     {
       name            = "tardigrade-group-alpha-${local.test_id}"
       inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-      policy_arns     = local.policy_arns
-      path            = "/tardigrade/alpha/"
-      user_names      = [for user in module.users.users : user.name]
     },
     {
       name            = "tardigrade-group-beta-${local.test_id}"
       inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-      policy_arns     = local.policy_arns
-      user_names      = [for user in module.users.users : user.name if user.name == "tardigrade-user-beta-${local.test_id}"]
+    },
+    {
+      name            = "tardigrade-group-delta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+  ]
+
+  groups = [
+    {
+      name                = "tardigrade-group-alpha-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
+      policy_arns         = local.policy_arns
+      path                = "/tardigrade/alpha/"
+      user_names          = [for user in module.users.users : user.name]
+    },
+    {
+      name                = "tardigrade-group-beta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
+      policy_arns         = local.policy_arns
+      user_names          = [for user in module.users.users : user.name if user.name == "tardigrade-user-beta-${local.test_id}"]
     },
     {
       name        = "tardigrade-group-chi-${local.test_id}"
       policy_arns = local.policy_arns
     },
     {
-      name            = "tardigrade-group-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      name                = "tardigrade-group-delta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name = "tardigrade-group-epsilon-${local.test_id}"

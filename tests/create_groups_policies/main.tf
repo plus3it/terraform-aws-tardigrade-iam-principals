@@ -9,7 +9,8 @@ module "policies" {
     aws = aws
   }
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_names = local.policies[*].name
 }
 
 module "create_groups" {
@@ -19,8 +20,16 @@ module "create_groups" {
     aws = aws
   }
 
-  policy_arns = [for policy in module.policies.policies : policy.arn]
-  groups      = [for group in local.groups : merge(local.group_base, group)]
+  inline_policies = local.group_inline_policies
+  groups          = [for group in local.groups : merge(local.group_base, group)]
+  policy_arns     = [for policy in module.policies.policies : policy.arn]
+}
+
+resource "random_string" "this" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
 }
 
 data "aws_caller_identity" "current" {}
@@ -65,9 +74,10 @@ locals {
   }
 
   template_vars_base = {
-    "account_id" = data.aws_caller_identity.current.account_id
-    "partition"  = data.aws_partition.current.partition
-    "region"     = data.aws_region.current.name
+    account_id    = data.aws_caller_identity.current.account_id
+    partition     = data.aws_partition.current.partition
+    region        = data.aws_region.current.name
+    random_string = random_string.this.result
   }
 
   policies = [
@@ -84,31 +94,46 @@ locals {
   ]
 
   group_base = {
-    inline_policies = []
-    path            = null
-    policy_arns     = []
-    user_names      = []
+    inline_policy_names = []
+    path                = null
+    policy_arns         = []
+    user_names          = []
   }
 
-  groups = [
+  group_inline_policies = [
     {
       name            = "tardigrade-group-alpha-${local.test_id}"
-      policy_arns     = local.policy_arns
       inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-      path            = "/tardigrade/alpha/"
     },
     {
       name            = "tardigrade-group-beta-${local.test_id}"
-      policy_arns     = local.policy_arns
       inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+    {
+      name            = "tardigrade-group-delta-${local.test_id}"
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+    },
+  ]
+
+  groups = [
+    {
+      name                = "tardigrade-group-alpha-${local.test_id}"
+      policy_arns         = local.policy_arns
+      inline_policy_names = local.inline_policies[*].name
+      path                = "/tardigrade/alpha/"
+    },
+    {
+      name                = "tardigrade-group-beta-${local.test_id}"
+      policy_arns         = local.policy_arns
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name        = "tardigrade-group-chi-${local.test_id}"
       policy_arns = local.policy_arns
     },
     {
-      name            = "tardigrade-group-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      name                = "tardigrade-group-delta-${local.test_id}"
+      inline_policy_names = local.inline_policies[*].name
     },
     {
       name = "tardigrade-group-epsilon-${local.test_id}"

@@ -1,10 +1,10 @@
 locals {
-  groups_map = { for group in var.groups : group.name => group }
+  groups = { for group in var.groups : group.name => group }
 
-  # Construct list of inline policy maps for use with for_each
+  # Construct list of inline policy objects for the policy_documents module
   # https://www.terraform.io/docs/configuration/functions/flatten.html#flattening-nested-structures-for-for_each
   inline_policies = flatten([
-    for group in var.groups : [
+    for group in var.inline_policies : [
       for inline_policy in lookup(group, "inline_policies", []) : {
         id             = "${group.name}:${inline_policy.name}"
         group_name     = group.name
@@ -12,6 +12,17 @@ locals {
         template       = inline_policy.template
         template_paths = inline_policy.template_paths
         template_vars  = inline_policy.template_vars
+      }
+    ]
+  ])
+
+  # Construct list of inline policy maps for use with for_each
+  inline_policy_ids = flatten([
+    for group in var.groups : [
+      for inline_policy in lookup(group, "inline_policy_names", []) : {
+        id          = "${group.name}:${inline_policy}"
+        group_name  = group.name
+        policy_name = inline_policy
       }
     ]
   ])
@@ -44,19 +55,21 @@ module "inline_policy_documents" {
 
   create_policy_documents = var.create_groups
 
+  policy_names = local.inline_policy_ids[*].id
+
   policies = [
-    for policy_map in local.inline_policies : {
-      name           = policy_map.id,
-      template       = policy_map.template
-      template_paths = policy_map.template_paths
-      template_vars  = policy_map.template_vars
+    for policy in local.inline_policies : {
+      name           = policy.id,
+      template       = policy.template
+      template_paths = policy.template_paths
+      template_vars  = policy.template_vars
     }
   ]
 }
 
 # create the IAM groups
 resource "aws_iam_group" "this" {
-  for_each = var.create_groups ? local.groups_map : {}
+  for_each = var.create_groups ? local.groups : {}
 
   name = each.key
   path = each.value.path
@@ -64,7 +77,7 @@ resource "aws_iam_group" "this" {
 
 # attach managed policies to the IAM groups
 resource "aws_iam_group_policy_attachment" "this" {
-  for_each = var.create_groups ? { for policy_map in local.managed_policies : policy_map.id => policy_map } : {}
+  for_each = var.create_groups ? { for policy in local.managed_policies : policy.id => policy } : {}
 
   group      = aws_iam_group.this[each.value.group_name].id
   policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
@@ -72,7 +85,7 @@ resource "aws_iam_group_policy_attachment" "this" {
 
 # create inline policies for the IAM groups
 resource "aws_iam_group_policy" "this" {
-  for_each = var.create_groups ? { for policy_map in local.inline_policies : policy_map.id => policy_map } : {}
+  for_each = var.create_groups ? { for policy in local.inline_policy_ids : policy.id => policy } : {}
 
   name   = each.value.policy_name
   group  = aws_iam_group.this[each.value.group_name].id

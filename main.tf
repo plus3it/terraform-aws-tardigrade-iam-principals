@@ -12,6 +12,27 @@ locals {
     var.user_names,
     [for user in module.users.users : user.name]
   ))
+
+  group_inline_policies = [
+    for policy in var.inline_policies : {
+      name            = policy.name
+      inline_policies = policy.inline_policies
+    } if policy.type == "group"
+  ]
+
+  role_inline_policies = [
+    for policy in var.inline_policies : {
+      name            = policy.name
+      inline_policies = policy.inline_policies
+    } if policy.type == "role"
+  ]
+
+  user_inline_policies = [
+    for policy in var.inline_policies : {
+      name            = policy.name
+      inline_policies = policy.inline_policies
+    } if policy.type == "user"
+  ]
 }
 
 module "policies" {
@@ -19,6 +40,7 @@ module "policies" {
 
   create_policies = var.create_policies
   policies        = var.policies
+  policy_names    = var.policy_names
 }
 
 module "groups" {
@@ -27,8 +49,9 @@ module "groups" {
   policy_arns = local.policy_arns
   user_names  = local.user_names
 
-  create_groups = var.create_groups
-  groups        = var.groups
+  create_groups   = var.create_groups
+  groups          = var.groups
+  inline_policies = local.group_inline_policies
 }
 
 module "roles" {
@@ -36,9 +59,11 @@ module "roles" {
 
   policy_arns = local.policy_arns
 
-  create_roles = var.create_roles
-  roles        = var.roles
-  tags         = var.tags
+  create_roles         = var.create_roles
+  assume_role_policies = var.assume_role_policies
+  inline_policies      = local.role_inline_policies
+  roles                = var.roles
+  tags                 = var.tags
 }
 
 module "users" {
@@ -46,7 +71,8 @@ module "users" {
 
   policy_arns = local.policy_arns
 
-  create_users = var.create_users
-  tags         = var.tags
-  users        = var.users
+  create_users    = var.create_users
+  inline_policies = local.user_inline_policies
+  tags            = var.tags
+  users           = var.users
 }
