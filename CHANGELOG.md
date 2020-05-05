@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 6.0.0
+
+**Released**: 2020.05.05
+
+**Commit Delta**: [Change from 5.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/5.0.0...6.0.0)
+
+**Summary**:
+
+*   Uses separate variables where `template_vars` is needed in objects. See
+    [PR #78](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/78).
+
 ### 5.0.0
 
 **Released**: 2020.04.17
