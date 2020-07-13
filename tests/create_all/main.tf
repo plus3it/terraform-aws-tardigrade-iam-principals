@@ -66,9 +66,23 @@ locals {
     },
   ]
 
-  inline_policies_merged = [for policy in local.inline_policies_base : merge(local.policy_base, policy)]
+  inline_policies_merged = [for policy in local.inline_policies_base : merge(
+    local.policy_base,
+    local.policy_document_base,
+    policy
+  )]
 
   managed_policies = [
+    {
+      name     = "tardigrade-alpha-${local.test_id}"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      path     = "/tardigrade/"
+    },
+  ]
+
+  managed_policy_documents = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
       template = "policies/template.json"
@@ -76,7 +90,6 @@ locals {
     {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
-      path     = "/tardigrade/"
       template_vars = merge(
         local.template_vars_base,
         {
@@ -103,6 +116,9 @@ locals {
   policy_base = {
     path          = null
     description   = null
+  }
+
+  policy_document_base = {
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/",
@@ -311,8 +327,9 @@ module "create_all" {
   create_users    = true
   create_groups   = true
 
-  policies     = [for policy in local.managed_policies : merge(local.policy_base, policy)]
-  policy_names = local.managed_policies[*].name
+  policies         = [for policy in local.managed_policies : merge(local.policy_base, policy)]
+  policy_documents = [for policy_document in local.managed_policy_documents : merge(local.policy_document_base, policy_document)]
+  policy_names     = local.managed_policies[*].name
 
   groups = [for group in local.groups : merge(local.group_base, group)]
   roles  = [for role in local.roles : merge(local.role_base, role)]

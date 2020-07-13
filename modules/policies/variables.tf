@@ -16,6 +16,14 @@ variable "policies" {
     description    = string
     name           = string
     path           = string
+  }))
+  default = []
+}
+
+variable "policy_documents" {
+  description = "Schema list of policy_document objects"
+  type = list(object({
+    name           = string
     template       = string
     template_paths = list(string)
     template_vars  = map(string)

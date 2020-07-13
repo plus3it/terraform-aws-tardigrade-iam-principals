@@ -38,9 +38,10 @@ locals {
 module "policies" {
   source = "./modules/policies/"
 
-  create_policies = var.create_policies
-  policies        = var.policies
-  policy_names    = var.policy_names
+  create_policies  = var.create_policies
+  policies         = var.policies
+  policy_documents = var.policy_documents
+  policy_names     = var.policy_names
 }
 
 module "groups" {
