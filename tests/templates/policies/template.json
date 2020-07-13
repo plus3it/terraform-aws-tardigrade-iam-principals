@@ -15,7 +15,17 @@
             "Effect": "Allow",
             "Resource": "arn:${partition}:ec2:${region}:${account_id}:instance/*",
             "Sid": "TemplateVars"
-        }
-    ],
+        },
+        {
+          "Action": [
+              "ec2:GetConsoleScreenShot"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "${instance_arns}"
+          ],
+          "Sid": "ListOfVars"
+      }
+  ],
     "Version": "2012-10-17"
 }

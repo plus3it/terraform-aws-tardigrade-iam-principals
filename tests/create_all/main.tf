@@ -15,6 +15,15 @@ data "terraform_remote_state" "prereq" {
   }
 }
 
+/*
+resource "random_string" "foo" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+*/
+
 locals {
   test_id = length(data.terraform_remote_state.prereq.outputs) > 0 ? data.terraform_remote_state.prereq.outputs.random_string.result : ""
 
@@ -68,6 +77,19 @@ locals {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
       path     = "/tardigrade/"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          instance_arns = join(
+            "\",\"",
+            [
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+//              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+            ]
+          )
+        }
+      )
     },
   ]
 
@@ -92,6 +114,12 @@ locals {
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
     random_string = random_string.this.result
+    instance_arns = join(
+      "\",\"",
+      [
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      ]
+    )
   }
 
   role_base = {
