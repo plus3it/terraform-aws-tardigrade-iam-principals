@@ -122,6 +122,7 @@ locals {
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/",
+      "${path.module}/templates/",
     ]
   }
 
