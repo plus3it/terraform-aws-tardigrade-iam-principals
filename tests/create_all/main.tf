@@ -16,6 +16,19 @@ data "terraform_remote_state" "prereq" {
 }
 
 /*
+  To detect resource cycles on IAM policies when adding resources to policy
+  documents:
+
+  1. apply the prereqs
+  2. apply the test config
+  3. uncomment the commented lines
+  4. re-apply the test config
+
+  The failure is when ALL policies are cycled, instead of just the one policy
+  that is changing.
+*/
+
+/*
 resource "random_string" "foo" {
   length  = 6
   upper   = false
@@ -98,6 +111,7 @@ locals {
             [
               "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
               "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+              // Do not remove! Used to detect resource cycles, see comments above.
               //"arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
             ]
           )
