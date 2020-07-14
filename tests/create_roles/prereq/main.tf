@@ -17,8 +17,8 @@ data "aws_region" "current" {}
 
 locals {
   policy_base = {
-    path          = null
-    description   = null
+    path        = null
+    description = null
   }
 
   policy_document_base = {
@@ -36,11 +36,11 @@ locals {
 
   policies = [
     {
-      name     = "tardigrade-alpha-create-roles-test"
+      name = "tardigrade-alpha-create-roles-test"
     },
     {
-      name     = "tardigrade-beta-create-roles-test"
-      path     = "/tardigrade/"
+      name = "tardigrade-beta-create-roles-test"
+      path = "/tardigrade/"
     },
   ]
 
@@ -63,9 +63,9 @@ module "policies" {
     aws = aws
   }
 
-  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies         = [for policy in local.policies : merge(local.policy_base, policy)]
   policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
-  policy_names = local.policies[*].name
+  policy_names     = local.policies[*].name
 }
 
 output "policies" {

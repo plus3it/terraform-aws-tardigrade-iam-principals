@@ -17,8 +17,8 @@ data "terraform_remote_state" "prereq" {
 
 locals {
   policy_base = {
-    path          = null
-    description   = null
+    path        = null
+    description = null
   }
 
   policy_document_base = {
@@ -37,11 +37,11 @@ locals {
 
   policies = [
     {
-      name     = "tardigrade-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      name = "tardigrade-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
     },
     {
-      name     = "tardigrade-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      path     = "/tardigrade/"
+      name = "tardigrade-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      path = "/tardigrade/"
     },
     {
       name        = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
@@ -70,12 +70,12 @@ locals {
       template = "policies/template.json"
     },
     {
-      name        = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      template    = "policies/template.json"
+      name     = "tardigrade-role-chi-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      template = "policies/template.json"
     },
     {
-      name        = "tardigrade-role-delta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      template    = "policies/template.json"
+      name     = "tardigrade-role-delta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
+      template = "policies/template.json"
     },
   ]
 }
@@ -87,9 +87,9 @@ module "policies" {
     aws = aws
   }
 
-  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies         = [for policy in local.policies : merge(local.policy_base, policy)]
   policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
-  policy_names = local.policies[*].name
+  policy_names     = local.policies[*].name
 }
 
 resource "random_string" "this" {

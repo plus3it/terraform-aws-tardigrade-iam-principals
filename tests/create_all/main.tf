@@ -74,11 +74,11 @@ locals {
 
   managed_policies = [
     {
-      name     = "tardigrade-alpha-${local.test_id}"
+      name = "tardigrade-alpha-${local.test_id}"
     },
     {
-      name     = "tardigrade-beta-${local.test_id}"
-      path     = "/tardigrade/"
+      name = "tardigrade-beta-${local.test_id}"
+      path = "/tardigrade/"
     },
   ]
 
@@ -98,7 +98,7 @@ locals {
             [
               "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
               "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
-//              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+              //"arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
             ]
           )
         }
@@ -114,8 +114,8 @@ locals {
   }
 
   policy_base = {
-    path          = null
-    description   = null
+    path        = null
+    description = null
   }
 
   policy_document_base = {

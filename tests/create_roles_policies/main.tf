@@ -35,8 +35,8 @@ locals {
   ]
 
   policy_base = {
-    path          = null
-    description   = null
+    path        = null
+    description = null
   }
 
   policy_document_base = {
@@ -71,15 +71,15 @@ locals {
       name        = "tardigrade-alpha-${local.test_id}"
     },
     {
-      name     = "tardigrade-beta-${local.test_id}"
-      path     = "/tardigrade/"
+      name = "tardigrade-beta-${local.test_id}"
+      path = "/tardigrade/"
     },
   ]
 
   policy_documents = [
     {
-      name        = "tardigrade-alpha-${local.test_id}"
-      template    = "policies/template.json"
+      name     = "tardigrade-alpha-${local.test_id}"
+      template = "policies/template.json"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
@@ -163,9 +163,9 @@ module "policies" {
     aws = aws
   }
 
-  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies         = [for policy in local.policies : merge(local.policy_base, policy)]
   policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
-  policy_names = local.policies[*].name
+  policy_names     = local.policies[*].name
 }
 
 module "create_roles" {
