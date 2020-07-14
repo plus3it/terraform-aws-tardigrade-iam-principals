@@ -19,6 +19,9 @@ locals {
   policy_base = {
     path          = null
     description   = null
+  }
+
+  policy_document_base = {
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../../templates/"
@@ -34,12 +37,21 @@ locals {
   policies = [
     {
       name     = "tardigrade-alpha-create-groups-test"
+    },
+    {
+      name     = "tardigrade-beta-create-groups-test"
+      path     = "/tardigrade/"
+    },
+  ]
+
+  policy_documents = [
+    {
+      name     = "tardigrade-alpha-create-groups-test"
       template = "policies/template.json"
     },
     {
       name     = "tardigrade-beta-create-groups-test"
       template = "policies/template.json"
-      path     = "/tardigrade/"
     },
   ]
 }
@@ -52,6 +64,7 @@ module "policies" {
   }
 
   policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
   policy_names = local.policies[*].name
 }
 

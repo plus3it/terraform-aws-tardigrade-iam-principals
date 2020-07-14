@@ -37,6 +37,9 @@ locals {
   policy_base = {
     path          = null
     description   = null
+  }
+
+  policy_document_base = {
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/"
@@ -64,27 +67,36 @@ locals {
     {
       description = "test"
       name        = "tardigrade-alpha-${local.test_id}"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      path     = "/tardigrade/"
+    },
+  ]
+
+  policy_documents = [
+    {
+      name        = "tardigrade-alpha-${local.test_id}"
       template    = "policies/template.json"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
-      path     = "/tardigrade/"
     },
   ]
 
   user_inline_policies = [
     {
       name            = "tardigrade-user-alpha-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
     },
     {
       name            = "tardigrade-user-beta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
     },
     {
       name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
+      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
     },
   ]
 
@@ -135,6 +147,7 @@ module "policies" {
   }
 
   policies     = [for policy in local.policies : merge(local.policy_base, policy)]
+  policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
   policy_names = local.policies[*].name
 }
 
