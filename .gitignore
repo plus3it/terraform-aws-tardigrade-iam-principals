@@ -21,3 +21,6 @@ tardigrade-ci/
 # eclint
 .git/
 
+# go tests
+go.sum
+go.mod

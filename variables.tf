@@ -75,9 +75,17 @@ variable "policy_names" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    description    = string
+    description = string
+    name        = string
+    path        = string
+  }))
+  default = []
+}
+
+variable "policy_documents" {
+  description = "Schema list of policy_document objects"
+  type = list(object({
     name           = string
-    path           = string
     template       = string
     template_paths = list(string)
     template_vars  = map(string)

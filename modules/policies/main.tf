@@ -7,7 +7,7 @@ module "policy_documents" {
 
   create_policy_documents = var.create_policies
 
-  policies     = var.policies
+  policies     = var.policy_documents
   policy_names = var.policy_names
 }
 
