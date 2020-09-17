@@ -54,8 +54,6 @@ locals {
 module "inline_policy_documents" {
   source = "../policy_documents"
 
-  create_policy_documents = var.create_users
-
   policy_names = local.inline_policy_ids[*].id
 
   policies = [
@@ -70,7 +68,7 @@ module "inline_policy_documents" {
 
 # create the IAM users
 resource "aws_iam_user" "this" {
-  for_each = var.create_users ? local.users : {}
+  for_each = local.users
 
   name = each.key
 
@@ -84,7 +82,7 @@ resource "aws_iam_user" "this" {
 
 # attach managed policies to the IAM users
 resource "aws_iam_user_policy_attachment" "this" {
-  for_each = var.create_users ? { for policy in local.managed_policies : policy.id => policy } : {}
+  for_each = { for policy in local.managed_policies : policy.id => policy }
 
   policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
   user       = aws_iam_user.this[each.value.user_name].id
@@ -92,7 +90,7 @@ resource "aws_iam_user_policy_attachment" "this" {
 
 # create inline policies for the IAM users
 resource "aws_iam_user_policy" "this" {
-  for_each = var.create_users ? { for policy in local.inline_policy_ids : policy.id => policy } : {}
+  for_each = { for policy in local.inline_policy_ids : policy.id => policy }
 
   name   = each.value.policy_name
   user   = aws_iam_user.this[each.value.user_name].id
@@ -101,7 +99,7 @@ resource "aws_iam_user_policy" "this" {
 
 # create access keys for the IAM users
 resource "aws_iam_access_key" "this" {
-  for_each = var.create_users ? { for access_key in local.access_keys : access_key.id => access_key } : {}
+  for_each = { for access_key in local.access_keys : access_key.id => access_key }
 
   user    = aws_iam_user.this[each.value.user_name].id
   pgp_key = each.value.pgp_key

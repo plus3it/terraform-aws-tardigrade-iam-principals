@@ -53,8 +53,6 @@ locals {
 module "inline_policy_documents" {
   source = "../policy_documents"
 
-  create_policy_documents = var.create_groups
-
   policy_names = local.inline_policy_ids[*].id
 
   policies = [
@@ -69,7 +67,7 @@ module "inline_policy_documents" {
 
 # create the IAM groups
 resource "aws_iam_group" "this" {
-  for_each = var.create_groups ? local.groups : {}
+  for_each = local.groups
 
   name = each.key
   path = each.value.path
@@ -77,7 +75,7 @@ resource "aws_iam_group" "this" {
 
 # attach managed policies to the IAM groups
 resource "aws_iam_group_policy_attachment" "this" {
-  for_each = var.create_groups ? { for policy in local.managed_policies : policy.id => policy } : {}
+  for_each = { for policy in local.managed_policies : policy.id => policy }
 
   group      = aws_iam_group.this[each.value.group_name].id
   policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
@@ -85,7 +83,7 @@ resource "aws_iam_group_policy_attachment" "this" {
 
 # create inline policies for the IAM groups
 resource "aws_iam_group_policy" "this" {
-  for_each = var.create_groups ? { for policy in local.inline_policy_ids : policy.id => policy } : {}
+  for_each = { for policy in local.inline_policy_ids : policy.id => policy }
 
   name   = each.value.policy_name
   group  = aws_iam_group.this[each.value.group_name].id
@@ -94,7 +92,7 @@ resource "aws_iam_group_policy" "this" {
 
 # manage group memberships
 resource "aws_iam_user_group_membership" "this" {
-  for_each = var.create_groups ? { for user in local.users : user.id => user } : {}
+  for_each = { for user in local.users : user.id => user }
 
   groups = [aws_iam_group.this[each.value.group_name].id]
   user   = var.user_names[index(var.user_names, each.value.user)]

@@ -1,9 +1,3 @@
-variable "create_users" {
-  description = "Controls whether an IAM user will be created"
-  type        = bool
-  default     = true
-}
-
 variable "inline_policies" {
   description = "Schema list of IAM User inline policies"
   type = list(object({

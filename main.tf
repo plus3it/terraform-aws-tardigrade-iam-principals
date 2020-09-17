@@ -38,7 +38,6 @@ locals {
 module "policies" {
   source = "./modules/policies/"
 
-  create_policies  = var.create_policies
   policies         = var.policies
   policy_documents = var.policy_documents
   policy_names     = var.policy_names
@@ -50,7 +49,6 @@ module "groups" {
   policy_arns = local.policy_arns
   user_names  = local.user_names
 
-  create_groups   = var.create_groups
   groups          = var.groups
   inline_policies = local.group_inline_policies
 }
@@ -60,7 +58,6 @@ module "roles" {
 
   policy_arns = local.policy_arns
 
-  create_roles         = var.create_roles
   assume_role_policies = var.assume_role_policies
   inline_policies      = local.role_inline_policies
   roles                = var.roles
@@ -72,7 +69,6 @@ module "users" {
 
   policy_arns = local.policy_arns
 
-  create_users    = var.create_users
   inline_policies = local.user_inline_policies
   tags            = var.tags
   users           = var.users

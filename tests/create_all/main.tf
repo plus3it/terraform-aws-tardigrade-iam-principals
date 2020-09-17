@@ -337,11 +337,6 @@ resource "random_string" "this" {
 module "create_all" {
   source = "../../"
 
-  create_policies = true
-  create_roles    = true
-  create_users    = true
-  create_groups   = true
-
   policies         = [for policy in local.managed_policies : merge(local.policy_base, policy)]
   policy_documents = [for policy_document in local.managed_policy_documents : merge(local.policy_document_base, policy_document)]
   policy_names     = local.managed_policies[*].name

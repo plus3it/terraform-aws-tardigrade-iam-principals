@@ -19,10 +19,6 @@ No provider.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | assume\_role\_policies | Schema list of assume role policy objects for the IAM Roles | <pre>list(object({<br>    name           = string<br>    template       = string<br>    template_paths = list(string)<br>    template_vars  = map(string)<br>  }))</pre> | `[]` | no |
-| create\_groups | Controls whether to create IAM groups | `bool` | `true` | no |
-| create\_policies | Controls whether to create IAM policies | `bool` | `true` | no |
-| create\_roles | Controls whether to create IAM roles | `bool` | `true` | no |
-| create\_users | Controls whether an IAM user will be created | `bool` | `true` | no |
 | groups | Schema list of IAM groups | <pre>list(object({<br>    name                = string<br>    path                = string<br>    policy_arns         = list(string)<br>    user_names          = list(string)<br>    inline_policy_names = list(string)<br>  }))</pre> | `[]` | no |
 | inline\_policies | Schema list of inline policies for groups, users, and roles | <pre>list(object({<br>    name = string<br>    type = string<br>    inline_policies = list(object({<br>      name           = string<br>      template       = string<br>      template_paths = list(string)<br>      template_vars  = map(string)<br>    }))<br>  }))</pre> | `[]` | no |
 | policies | Schema list of policy objects | <pre>list(object({<br>    description = string<br>    name        = string<br>    path        = string<br>  }))</pre> | `[]` | no |

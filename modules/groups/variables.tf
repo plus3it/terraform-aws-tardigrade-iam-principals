@@ -1,9 +1,3 @@
-variable "create_groups" {
-  description = "Controls whether IAM groups will be created"
-  type        = bool
-  default     = true
-}
-
 variable "groups" {
   description = "Schema list of IAM Group objects"
   type = list(object({
