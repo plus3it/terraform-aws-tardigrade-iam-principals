@@ -9,30 +9,6 @@ variable "assume_role_policies" {
   default = []
 }
 
-variable "create_groups" {
-  description = "Controls whether to create IAM groups"
-  type        = bool
-  default     = true
-}
-
-variable "create_policies" {
-  description = "Controls whether to create IAM policies"
-  type        = bool
-  default     = true
-}
-
-variable "create_roles" {
-  description = "Controls whether to create IAM roles"
-  type        = bool
-  default     = true
-}
-
-variable "create_users" {
-  description = "Controls whether an IAM user will be created"
-  type        = bool
-  default     = true
-}
-
 variable "groups" {
   description = "Schema list of IAM groups"
   type = list(object({

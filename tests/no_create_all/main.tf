@@ -4,10 +4,7 @@ provider aws {
 
 module "no_create_all" {
   source = "../../"
-
-  create_policies = false
-  create_roles    = false
-  create_users    = false
+  count  = 0
 }
 
 output "no_create_all" {

@@ -18,7 +18,6 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| create\_policies | Controls whether to create IAM policies | `bool` | `true` | no |
 | policies | Schema list of policy objects | <pre>list(object({<br>    description = string<br>    name        = string<br>    path        = string<br>  }))</pre> | `[]` | no |
 | policy\_documents | Schema list of policy\_document objects | <pre>list(object({<br>    name           = string<br>    template       = string<br>    template_paths = list(string)<br>    template_vars  = map(string)<br>  }))</pre> | `[]` | no |
 | policy\_names | List of policy names in the `policies` objects | `list(string)` | `[]` | no |

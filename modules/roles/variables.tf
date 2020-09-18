@@ -9,12 +9,6 @@ variable "assume_role_policies" {
   default = []
 }
 
-variable "create_roles" {
-  description = "Controls whether to create IAM roles"
-  type        = bool
-  default     = true
-}
-
 variable "inline_policies" {
   description = "Schema list of IAM Role inline policies"
   type = list(object({

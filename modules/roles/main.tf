@@ -42,8 +42,6 @@ locals {
 module "assume_role_policy_documents" {
   source = "../policy_documents"
 
-  create_policy_documents = var.create_roles
-
   policy_names = var.roles[*].name
 
   policies = [
@@ -59,8 +57,6 @@ module "assume_role_policy_documents" {
 module "inline_policy_documents" {
   source = "../policy_documents"
 
-  create_policy_documents = var.create_roles
-
   policy_names = local.inline_policy_ids[*].id
 
   policies = [
@@ -75,7 +71,7 @@ module "inline_policy_documents" {
 
 # create the IAM roles
 resource "aws_iam_role" "this" {
-  for_each = var.create_roles ? local.roles : {}
+  for_each = local.roles
 
   name               = each.key
   assume_role_policy = module.assume_role_policy_documents.policies[each.key]
@@ -92,7 +88,7 @@ resource "aws_iam_role" "this" {
 
 # attach managed policies to the IAM roles
 resource "aws_iam_role_policy_attachment" "this" {
-  for_each = var.create_roles ? { for policy in local.managed_policies : policy.id => policy } : {}
+  for_each = { for policy in local.managed_policies : policy.id => policy }
 
   policy_arn = var.policy_arns[index(var.policy_arns, each.value.policy_arn)]
   role       = aws_iam_role.this[each.value.role_name].id
@@ -100,7 +96,7 @@ resource "aws_iam_role_policy_attachment" "this" {
 
 # create inline policies for the IAM roles
 resource "aws_iam_role_policy" "this" {
-  for_each = var.create_roles ? { for policy in local.inline_policy_ids : policy.id => policy } : {}
+  for_each = { for policy in local.inline_policy_ids : policy.id => policy }
 
   name   = each.value.policy_name
   role   = aws_iam_role.this[each.value.role_name].id
@@ -109,7 +105,7 @@ resource "aws_iam_role_policy" "this" {
 
 # attach an instance profile to the IAM roles
 resource "aws_iam_instance_profile" "this" {
-  for_each = { for name, role in local.roles : name => role if var.create_roles && lookup(role, "instance_profile", null) == true }
+  for_each = { for name, role in local.roles : name => role if lookup(role, "instance_profile", null) == true }
 
   name = aws_iam_role.this[each.key].id
   role = aws_iam_role.this[each.key].id
