@@ -1,67 +1,29 @@
-variable "assume_role_policies" {
-  description = "Schema list of assume role policy objects for the IAM Roles"
-  type = list(object({
-    name           = string
-    template       = string
-    template_paths = list(string)
-    template_vars  = map(string)
-  }))
-  default = []
-}
-
 variable "groups" {
   description = "Schema list of IAM groups"
   type = list(object({
-    name                = string
-    path                = string
-    policy_arns         = list(string)
-    user_names          = list(string)
-    inline_policy_names = list(string)
-  }))
-  default = []
-}
-
-variable "inline_policies" {
-  description = "Schema list of inline policies for groups, users, and roles"
-  type = list(object({
-    name = string
-    type = string
+    name       = string
+    path       = string
+    user_names = list(string)
     inline_policies = list(object({
       name           = string
       template       = string
       template_paths = list(string)
       template_vars  = map(string)
     }))
+    managed_policies = list(object({
+      name = string
+      arn  = string
+    }))
   }))
   default = []
-}
-
-variable "policy_arns" {
-  description = "List of all managed policy ARNs used in the roles, groups, and users objects. This is needed to properly order policy attachments/detachments on resource cycles"
-  type        = list(string)
-  default     = []
-}
-
-variable "policy_names" {
-  description = "List of policy names in the `policies` objects"
-  type        = list(string)
-  default     = []
 }
 
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    description = string
-    name        = string
-    path        = string
-  }))
-  default = []
-}
-
-variable "policy_documents" {
-  description = "Schema list of policy_document objects"
-  type = list(object({
+    description    = string
     name           = string
+    path           = string
     template       = string
     template_paths = list(string)
     template_vars  = map(string)
@@ -80,16 +42,23 @@ variable "roles" {
     path                  = string
     permissions_boundary  = string
     tags                  = map(string)
-    policy_arns           = list(string)
-    inline_policy_names   = list(string)
+    assume_role_policy = object({
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
+    })
+    inline_policies = list(object({
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
+    }))
+    managed_policies = list(object({
+      name = string
+      arn  = string
+    }))
   }))
   default = []
-}
-
-variable "tags" {
-  description = "Map of tags to apply to the IAM roles and users. May also be set per-role/user in the role/user-schemas"
-  type        = map(string)
-  default     = {}
 }
 
 variable "users" {
@@ -100,8 +69,16 @@ variable "users" {
     path                 = string
     permissions_boundary = string
     tags                 = map(string)
-    policy_arns          = list(string)
-    inline_policy_names  = list(string)
+    inline_policies = list(object({
+      name           = string
+      template       = string
+      template_paths = list(string)
+      template_vars  = map(string)
+    }))
+    managed_policies = list(object({
+      name = string
+      arn  = string
+    }))
     access_keys = list(object({
       name    = string
       status  = string
@@ -109,10 +86,4 @@ variable "users" {
     }))
   }))
   default = []
-}
-
-variable "user_names" {
-  description = "List of all IAM user names used in the groups object. This is needed to properly order group membership attachments/detachments on resource cycles"
-  type        = list(string)
-  default     = []
 }
