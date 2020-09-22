@@ -13,6 +13,12 @@ variable access_keys {
   default = []
 }
 
+variable depends_on_policies {
+  description = "List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for_each limitations"
+  type        = list(string)
+  default     = []
+}
+
 variable force_destroy {
   description = "When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices. Without `force_destroy` a user with non-Terraform-managed access keys and login profile will fail to be destroyed"
   type        = bool

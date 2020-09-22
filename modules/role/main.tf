@@ -37,6 +37,10 @@ resource aws_iam_role this {
   path                  = var.path
   permissions_boundary  = var.permissions_boundary
   tags                  = var.tags
+
+  depends_on = [
+    var.depends_on_policies
+  ]
 }
 
 # attach managed policies to the IAM roles
@@ -45,6 +49,10 @@ resource aws_iam_role_policy_attachment this {
 
   policy_arn = each.value.arn
   role       = aws_iam_role.this.id
+
+  depends_on = [
+    var.depends_on_policies
+  ]
 }
 
 # create inline policies for the IAM roles

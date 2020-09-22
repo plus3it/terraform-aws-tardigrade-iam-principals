@@ -2,6 +2,11 @@ terraform {
   required_version = ">= 0.13"
 }
 
+locals {
+  depends_on_policies = [for object in module.policies : object.policy.arn]
+  depends_on_users    = [for object in module.users : object.user.arn]
+}
+
 module "policies" {
   source   = "./modules/policy"
   for_each = { for policy in var.policies : policy.name => policy }
@@ -26,10 +31,8 @@ module "groups" {
   path             = each.value.path
   user_names       = each.value.user_names
 
-  depends_on = [
-    module.policies,
-    module.users,
-  ]
+  depends_on_policies = local.depends_on_policies
+  depends_on_users    = local.depends_on_users
 }
 
 module "roles" {
@@ -49,9 +52,7 @@ module "roles" {
   permissions_boundary  = each.value.permissions_boundary
   tags                  = each.value.tags
 
-  depends_on = [
-    module.policies,
-  ]
+  depends_on_policies = local.depends_on_policies
 }
 
 module "users" {
@@ -68,7 +69,5 @@ module "users" {
   permissions_boundary = each.value.permissions_boundary
   tags                 = each.value.tags
 
-  depends_on = [
-    module.policies,
-  ]
+  depends_on_policies = local.depends_on_policies
 }
