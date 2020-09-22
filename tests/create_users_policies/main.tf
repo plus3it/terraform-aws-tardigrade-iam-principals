@@ -28,6 +28,28 @@ module create_users {
   tags                 = each.value.tags
 }
 
+/*
+  To detect resource cycles on IAM policies when adding resources to policy
+  documents:
+
+  1. apply the prereqs
+  2. apply the test config
+  3. uncomment the commented lines
+  4. re-apply the test config
+
+  The failure is when ALL policies are cycled, instead of just the one policy
+  that is changing.
+*/
+
+/*
+resource "random_string" "foo" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+*/
+
 locals {
   test_id = data.terraform_remote_state.prereq.outputs.random_string.result
 
@@ -36,7 +58,8 @@ locals {
     description   = null
     template_vars = local.template_vars_base
     template_paths = [
-      "${path.module}/../templates/"
+      "${path.module}/../templates/",
+      "${path.module}/../resource_cycle/",
     ]
   }
 
@@ -45,6 +68,12 @@ locals {
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
     random_string = random_string.this.result
+    instance_arns = join(
+      "\",\"",
+      [
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      ]
+    )
   }
 
   user_base = {
@@ -83,6 +112,20 @@ locals {
       name     = "tardigrade-beta-${local.test_id}"
       path     = "/tardigrade/"
       template = "policies/template.json"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          instance_arns = join(
+            "\",\"",
+            [
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+              // Do not remove! Used to detect resource cycles, see comments above.
+              //"arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+            ]
+          )
+        }
+      )
     },
   ]
 
@@ -136,6 +179,10 @@ data terraform_remote_state prereq {
   config = {
     path = "prereq/terraform.tfstate"
   }
+}
+
+output policies {
+  value = module.policies
 }
 
 output create_users {
