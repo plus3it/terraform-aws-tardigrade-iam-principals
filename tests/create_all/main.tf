@@ -5,11 +5,39 @@ provider aws {
 module create_all {
   source = "../../"
 
-  policies = [for policy in local.policies : merge(local.policy_base, policy)]
+  policies = local.policies
 
-  groups = [for group in local.groups : merge(local.group_base, group)]
-  roles  = [for role in local.roles : merge(local.role_base, role)]
-  users  = [for user in local.users : merge(local.user_base, user)]
+  groups = local.groups
+  users  = local.users
+
+  roles = [for role in local.roles : merge(
+    role,
+    {
+      inline_policies = [
+        // This setup is designed to test for_each issues with inline policies. The "lookup" approach
+        // below causes a for_each error:
+        //for policy in lookup(role, "inline_policies", []) : merge(
+        // but if the role object is *guaranteed* to have the inline_policies attribute then the
+        // the lookup is not needed and this will work:
+        for policy in role.inline_policies : merge(
+          policy,
+          {
+            template_vars = merge(
+              local.template_vars_base,
+              {
+                instance_arns = join(
+                  "\",\"",
+                  [
+                    "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+                  ]
+                )
+              }
+            )
+          }
+        )
+      ]
+    }
+  )]
 }
 
 /*
@@ -62,14 +90,6 @@ locals {
     )
   }
 
-  user_names = [
-    "tardigrade-user-alpha-${local.test_id}",
-    "tardigrade-user-beta-${local.test_id}",
-    "tardigrade-user-chi-${local.test_id}",
-    "tardigrade-user-delta-${local.test_id}",
-    "tardigrade-user-epsilon-${local.test_id}",
-  ]
-
   access_key_base = {
     pgp_key = null
     status  = null
@@ -106,7 +126,7 @@ locals {
     },
   ]
 
-  policies = [
+  policies = [for policy in [
     {
       name     = "tardigrade-alpha-${local.test_id}"
       template = "policies/template.json"
@@ -130,7 +150,7 @@ locals {
         }
       )
     },
-  ]
+  ] : merge(local.policy_base, policy)]
 
   group_base = {
     inline_policies  = []
@@ -168,7 +188,7 @@ locals {
     tags                 = {}
   }
 
-  groups = [
+  groups = [for group in [
     {
       name             = "tardigrade-group-alpha-${local.test_id}"
       inline_policies  = local.inline_policies
@@ -193,9 +213,9 @@ locals {
     {
       name = "tardigrade-group-epsilon-${local.test_id}"
     },
-  ]
+  ] : merge(local.group_base, group)]
 
-  roles = [
+  roles = [for role in [
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       inline_policies       = local.inline_policies
@@ -229,9 +249,9 @@ locals {
       name             = "tardigrade-role-phi-${local.test_id}"
       instance_profile = true
     },
-  ]
+  ] : merge(local.role_base, role)]
 
-  users = [
+  users = [for user in [
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
       inline_policies      = local.inline_policies
@@ -260,7 +280,7 @@ locals {
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
     },
-  ]
+  ] : merge(local.user_base, user)]
 }
 
 resource random_string this {
