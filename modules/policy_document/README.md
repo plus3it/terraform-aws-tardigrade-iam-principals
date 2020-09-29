@@ -8,14 +8,13 @@ Terraform module to merge policy document templates and apply template variables
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12 |
+| terraform | >= 0.13 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| external | n/a |
-| template | n/a |
+| aws | n/a |
 
 ## Inputs
 
