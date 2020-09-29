@@ -8,7 +8,7 @@ Terraform module to create IAM Managed Policies.
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12 |
+| terraform | >= 0.13 |
 
 ## Providers
 
