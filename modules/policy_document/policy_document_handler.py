@@ -79,17 +79,15 @@ def _merge_iam_policy_doc(doc1, doc2):
     return doc1
 
 
-def main(name, template_paths, template, **kwargs):
+def main(template_paths, template):
     """Merge policy documents for all template paths."""
     iam_policy_doc = {"Statement": []}
 
     ret = {
-        "name": name,
-        "policy": copy.deepcopy(iam_policy_doc),
+        "template": copy.deepcopy(iam_policy_doc),
     }
 
     log.info("=" * 40)
-    log.info("name = %s", name)
     log.info("template = %s", template)
     log.info("template_paths = %s", template_paths)
 
@@ -97,11 +95,11 @@ def main(name, template_paths, template, **kwargs):
         policy_path = _join_paths([path, template])
 
         if os.path.isfile(policy_path):
-            ret["policy"] = _merge_iam_policy_doc(
-                ret["policy"], json.loads(_read(policy_path))
+            ret["template"] = _merge_iam_policy_doc(
+                ret["template"], json.loads(_read(policy_path))
             )
 
-    ret["policy"] = json.dumps(ret["policy"])
+    ret["template"] = json.dumps(ret["template"])
 
     return ret
 

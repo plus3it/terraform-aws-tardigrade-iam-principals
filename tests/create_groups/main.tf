@@ -2,42 +2,19 @@ provider aws {
   region = "us-east-1"
 }
 
-module "create_groups" {
-  source = "../../modules/groups/"
+module create_groups {
+  source   = "../../modules/group"
+  for_each = { for group in local.groups : group.name => merge(local.group_base, group) }
 
-  providers = {
-    aws = aws
-  }
-
-  groups          = [for group in local.groups : merge(local.group_base, group)]
-  inline_policies = local.group_inline_policies
-  policy_arns     = local.policy_arns
-}
-
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "prereq" {
-  backend = "local"
-  config = {
-    path = "prereq/terraform.tfstate"
-  }
-}
-
-resource "random_string" "this" {
-  length  = 6
-  upper   = false
-  special = false
-  number  = false
+  name             = each.key
+  inline_policies  = each.value.inline_policies
+  managed_policies = each.value.managed_policies
+  path             = each.value.path
+  user_names       = each.value.user_names
 }
 
 locals {
-  test_id = length(data.terraform_remote_state.prereq.outputs) > 0 ? data.terraform_remote_state.prereq.outputs.random_string.result : ""
-
-  policy_arns = length(data.terraform_remote_state.prereq.outputs) > 0 ? [for policy in data.terraform_remote_state.prereq.outputs.policies : policy.arn] : []
+  test_id = data.terraform_remote_state.prereq.outputs.random_string.result
 
   policy_base = {
     path          = null
@@ -55,7 +32,7 @@ locals {
     random_string = random_string.this.result
   }
 
-  inline_policies = [
+  inline_policies = [for policy in [
     {
       name     = "tardigrade-alpha-${local.test_id}"
       template = "policies/template.json"
@@ -64,49 +41,39 @@ locals {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
     },
-  ]
+  ] : merge(local.policy_base, policy)]
+
+  managed_policies = [for object in data.terraform_remote_state.prereq.outputs.policies : {
+    name = object.policy.name
+    arn  = object.policy.arn
+  }]
 
   group_base = {
-    inline_policy_names = []
-    path                = null
-    policy_arns         = []
-    user_names          = []
+    inline_policies  = []
+    managed_policies = []
+    path             = null
+    user_names       = []
   }
-
-  group_inline_policies = [
-    {
-      name            = "tardigrade-group-alpha-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-    },
-    {
-      name            = "tardigrade-group-beta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-    },
-    {
-      name            = "tardigrade-group-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, policy)]
-    },
-  ]
 
   groups = [
     {
-      name                = "tardigrade-group-alpha-${local.test_id}"
-      policy_arns         = local.policy_arns
-      inline_policy_names = local.inline_policies[*].name
-      path                = "/tardigrade/alpha/"
+      name             = "tardigrade-group-alpha-${local.test_id}"
+      inline_policies  = local.inline_policies
+      managed_policies = local.managed_policies
+      path             = "/tardigrade/alpha/"
     },
     {
-      name                = "tardigrade-group-beta-${local.test_id}"
-      policy_arns         = local.policy_arns
-      inline_policy_names = local.inline_policies[*].name
+      name             = "tardigrade-group-beta-${local.test_id}"
+      inline_policies  = local.inline_policies
+      managed_policies = local.managed_policies
     },
     {
-      name        = "tardigrade-group-chi-${local.test_id}"
-      policy_arns = local.policy_arns
+      name             = "tardigrade-group-chi-${local.test_id}"
+      managed_policies = local.managed_policies
     },
     {
-      name                = "tardigrade-group-delta-${local.test_id}"
-      inline_policy_names = local.inline_policies[*].name
+      name            = "tardigrade-group-delta-${local.test_id}"
+      inline_policies = local.inline_policies
     },
     {
       name = "tardigrade-group-epsilon-${local.test_id}"
@@ -114,6 +81,26 @@ locals {
   ]
 }
 
-output "create_groups" {
+resource random_string this {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+
+data aws_caller_identity current {}
+
+data aws_partition current {}
+
+data aws_region current {}
+
+data terraform_remote_state prereq {
+  backend = "local"
+  config = {
+    path = "prereq/terraform.tfstate"
+  }
+}
+
+output create_groups {
   value = module.create_groups
 }

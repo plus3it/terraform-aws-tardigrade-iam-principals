@@ -2,35 +2,13 @@ provider aws {
   region = "us-east-1"
 }
 
-data "aws_caller_identity" "current" {}
+module policy_documents {
+  source   = "../..//modules/policy_document"
+  for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
-data "aws_partition" "current" {}
-
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "prereq" {
-  backend = "local"
-  config = {
-    path = "prereq/terraform.tfstate"
-  }
-}
-
-module "policy_documents" {
-  source = "../../modules/policy_documents/"
-
-  providers = {
-    aws = aws
-  }
-
-  policies     = [for policy in local.policies : merge(local.policy_base, policy)]
-  policy_names = local.policies[*].name
-}
-
-resource "random_string" "this" {
-  length  = 6
-  upper   = false
-  special = false
-  number  = false
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
 
 locals {
@@ -53,7 +31,6 @@ locals {
 
   policy_base = {
     path          = null
-    description   = null
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/",
@@ -68,6 +45,26 @@ locals {
   }
 }
 
-output "policies" {
+resource random_string this {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+
+data aws_caller_identity current {}
+
+data aws_partition current {}
+
+data aws_region current {}
+
+data terraform_remote_state prereq {
+  backend = "local"
+  config = {
+    path = "prereq/terraform.tfstate"
+  }
+}
+
+output policy_documents {
   value = module.policy_documents
 }

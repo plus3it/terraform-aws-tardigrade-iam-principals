@@ -1,75 +1,73 @@
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.13"
 }
 
 locals {
-  policy_arns = distinct(concat(
-    var.policy_arns,
-    [for policy in module.policies.policies : policy.arn]
-  ))
-
-  user_names = distinct(concat(
-    var.user_names,
-    [for user in module.users.users : user.name]
-  ))
-
-  group_inline_policies = [
-    for policy in var.inline_policies : {
-      name            = policy.name
-      inline_policies = policy.inline_policies
-    } if policy.type == "group"
-  ]
-
-  role_inline_policies = [
-    for policy in var.inline_policies : {
-      name            = policy.name
-      inline_policies = policy.inline_policies
-    } if policy.type == "role"
-  ]
-
-  user_inline_policies = [
-    for policy in var.inline_policies : {
-      name            = policy.name
-      inline_policies = policy.inline_policies
-    } if policy.type == "user"
-  ]
+  depends_on_policies = [for object in module.policies : object.policy.arn]
+  depends_on_users    = [for object in module.users : object.user.arn]
 }
 
 module "policies" {
-  source = "./modules/policies/"
+  source   = "./modules/policy"
+  for_each = { for policy in var.policies : policy.name => policy }
 
-  policies         = var.policies
-  policy_documents = var.policy_documents
-  policy_names     = var.policy_names
+  name = each.key
+
+  description    = each.value.description
+  path           = each.value.path
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
 
 module "groups" {
-  source = "./modules/groups/"
+  source   = "./modules/group"
+  for_each = { for group in var.groups : group.name => group }
 
-  policy_arns = local.policy_arns
-  user_names  = local.user_names
+  name = each.key
 
-  groups          = var.groups
-  inline_policies = local.group_inline_policies
+  inline_policies  = each.value.inline_policies
+  managed_policies = each.value.managed_policies
+  path             = each.value.path
+  user_names       = each.value.user_names
+
+  depends_on_policies = local.depends_on_policies
+  depends_on_users    = local.depends_on_users
 }
 
 module "roles" {
-  source = "./modules/roles/"
+  source   = "./modules/role"
+  for_each = { for role in var.roles : role.name => role }
 
-  policy_arns = local.policy_arns
+  name               = each.key
+  assume_role_policy = each.value.assume_role_policy
 
-  assume_role_policies = var.assume_role_policies
-  inline_policies      = local.role_inline_policies
-  roles                = var.roles
-  tags                 = var.tags
+  description           = each.value.description
+  force_detach_policies = each.value.force_detach_policies
+  inline_policies       = each.value.inline_policies
+  instance_profile      = each.value.instance_profile
+  managed_policies      = each.value.managed_policies
+  max_session_duration  = each.value.max_session_duration
+  path                  = each.value.path
+  permissions_boundary  = each.value.permissions_boundary
+  tags                  = each.value.tags
+
+  depends_on_policies = local.depends_on_policies
 }
 
 module "users" {
-  source = "./modules/users/"
+  source   = "./modules/user"
+  for_each = { for user in var.users : user.name => user }
 
-  policy_arns = local.policy_arns
+  name = each.key
 
-  inline_policies = local.user_inline_policies
-  tags            = var.tags
-  users           = var.users
+  access_keys          = each.value.access_keys
+  force_destroy        = each.value.force_destroy
+  inline_policies      = each.value.inline_policies
+  managed_policies     = each.value.managed_policies
+  path                 = each.value.path
+  permissions_boundary = each.value.permissions_boundary
+  tags                 = each.value.tags
+
+  depends_on_policies = local.depends_on_policies
 }

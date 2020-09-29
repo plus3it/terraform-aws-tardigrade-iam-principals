@@ -2,26 +2,22 @@ provider aws {
   region = "us-east-1"
 }
 
-resource "random_string" "this" {
-  length  = 6
-  upper   = false
-  special = false
-  number  = false
+module policies {
+  source   = "../../..//modules/policy"
+  for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
+
+  description    = each.value.description
+  name           = each.key
+  path           = each.value.path
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
-
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
-data "aws_region" "current" {}
 
 locals {
   policy_base = {
-    path        = null
-    description = null
-  }
-
-  policy_document_base = {
+    path          = null
+    description   = null
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../../templates/"
@@ -36,42 +32,34 @@ locals {
 
   policies = [
     {
-      name = "tardigrade-alpha-create-roles-test"
-    },
-    {
-      name = "tardigrade-beta-create-roles-test"
-      path = "/tardigrade/"
-    },
-  ]
-
-  policy_documents = [
-    {
       name     = "tardigrade-alpha-create-roles-test"
       template = "policies/template.json"
     },
     {
       name     = "tardigrade-beta-create-roles-test"
+      path     = "/tardigrade/"
       template = "policies/template.json"
     },
   ]
 }
 
-module "policies" {
-  source = "../../../modules/policies/"
-
-  providers = {
-    aws = aws
-  }
-
-  policies         = [for policy in local.policies : merge(local.policy_base, policy)]
-  policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
-  policy_names     = local.policies[*].name
+resource random_string this {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
 }
 
-output "policies" {
-  value = module.policies.policies
+data aws_caller_identity current {}
+
+data aws_partition current {}
+
+data aws_region current {}
+
+output policies {
+  value = module.policies
 }
 
-output "random_string" {
+output random_string {
   value = random_string.this
 }

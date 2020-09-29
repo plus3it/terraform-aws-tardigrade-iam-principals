@@ -2,47 +2,64 @@ provider aws {
   region = "us-east-1"
 }
 
-data "aws_caller_identity" "current" {}
+module policies {
+  source   = "../..//modules/policy"
+  for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
-data "aws_partition" "current" {}
-
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "prereq" {
-  backend = "local"
-  config = {
-    path = "prereq/terraform.tfstate"
-  }
+  description    = each.value.description
+  name           = each.key
+  path           = each.value.path
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
 
+module create_users {
+  source   = "../..//modules/user"
+  for_each = { for user in local.users : user.name => merge(local.user_base, user) }
+
+  name                 = each.key
+  access_keys          = each.value.access_keys
+  force_destroy        = each.value.force_destroy
+  inline_policies      = each.value.inline_policies
+  managed_policies     = each.value.managed_policies
+  path                 = each.value.path
+  permissions_boundary = each.value.permissions_boundary
+  tags                 = each.value.tags
+}
+
+/*
+  To detect resource cycles on IAM policies when adding resources to policy
+  documents:
+
+  1. apply the prereqs
+  2. apply the test config
+  3. uncomment the commented lines
+  4. re-apply the test config
+
+  The failure is when ALL policies are cycled, instead of just the one policy
+  that is changing.
+*/
+
+/*
+resource "random_string" "foo" {
+  length  = 6
+  upper   = false
+  special = false
+  number  = false
+}
+*/
+
 locals {
-  test_id = length(data.terraform_remote_state.prereq.outputs) > 0 ? data.terraform_remote_state.prereq.outputs.random_string.result : ""
-
-  policy_arns = [
-    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}",
-    "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}",
-  ]
-
-  inline_policies = [
-    {
-      name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
-    },
-  ]
+  test_id = data.terraform_remote_state.prereq.outputs.random_string.result
 
   policy_base = {
-    path        = null
-    description = null
-  }
-
-  policy_document_base = {
+    path          = null
+    description   = null
     template_vars = local.template_vars_base
     template_paths = [
-      "${path.module}/../templates/"
+      "${path.module}/../templates/",
+      "${path.module}/../resource_cycle/",
     ]
   }
 
@@ -51,30 +68,25 @@ locals {
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
     random_string = random_string.this.result
+    instance_arns = join(
+      "\",\"",
+      [
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      ]
+    )
   }
 
   user_base = {
-    policy_arns          = []
-    inline_policy_names  = []
     access_keys          = []
+    inline_policies      = []
+    managed_policies     = []
     force_destroy        = null
     path                 = null
-    permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade-alpha-${local.test_id}"
+    permissions_boundary = module.policies["tardigrade-alpha-${local.test_id}"].policy.arn
     tags                 = {}
   }
 
-  policies = [
-    {
-      description = "test"
-      name        = "tardigrade-alpha-${local.test_id}"
-    },
-    {
-      name = "tardigrade-beta-${local.test_id}"
-      path = "/tardigrade/"
-    },
-  ]
-
-  policy_documents = [
+  inline_policies = [for policy in [
     {
       name     = "tardigrade-alpha-${local.test_id}"
       template = "policies/template.json"
@@ -83,48 +95,65 @@ locals {
       name     = "tardigrade-beta-${local.test_id}"
       template = "policies/template.json"
     },
-  ]
+  ] : merge(local.policy_base, policy)]
 
-  user_inline_policies = [
+  managed_policies = [for name, object in module.policies : {
+    name = name
+    arn  = object.policy.arn
+  }]
+
+  policies = [
     {
-      name            = "tardigrade-user-alpha-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
+      description = "test"
+      name        = "tardigrade-alpha-${local.test_id}"
+      template    = "policies/template.json"
     },
     {
-      name            = "tardigrade-user-beta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
-    },
-    {
-      name            = "tardigrade-user-delta-${local.test_id}"
-      inline_policies = [for policy in local.inline_policies : merge(local.policy_base, local.policy_document_base, policy)]
+      name     = "tardigrade-beta-${local.test_id}"
+      path     = "/tardigrade/"
+      template = "policies/template.json"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          instance_arns = join(
+            "\",\"",
+            [
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+              // Do not remove! Used to detect resource cycles, see comments above.
+              //"arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+            ]
+          )
+        }
+      )
     },
   ]
 
   users = [
     {
       name                 = "tardigrade-user-alpha-${local.test_id}"
-      policy_arns          = local.policy_arns
-      inline_policy_names  = local.inline_policies[*].name
+      inline_policies      = local.inline_policies
+      managed_policies     = local.managed_policies
       force_destroy        = false
       path                 = "/tardigrade/alpha/"
-      permissions_boundary = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/tardigrade/tardigrade-beta-${local.test_id}"
+      permissions_boundary = module.policies["tardigrade-beta-${local.test_id}"].policy.arn
       tags = {
         Env = "tardigrade"
       }
     },
     {
       name                 = "tardigrade-user-beta-${local.test_id}"
-      policy_arns          = local.policy_arns
-      inline_policy_names  = local.inline_policies[*].name
+      inline_policies      = local.inline_policies
+      managed_policies     = local.managed_policies
       permissions_boundary = null
     },
     {
-      name        = "tardigrade-user-chi-${local.test_id}"
-      policy_arns = local.policy_arns
+      name             = "tardigrade-user-chi-${local.test_id}"
+      managed_policies = local.managed_policies
     },
     {
-      name                = "tardigrade-user-delta-${local.test_id}"
-      inline_policy_names = local.inline_policies[*].name
+      name            = "tardigrade-user-delta-${local.test_id}"
+      inline_policies = local.inline_policies
     },
     {
       name = "tardigrade-user-epsilon-${local.test_id}"
@@ -132,51 +161,30 @@ locals {
   ]
 }
 
-resource "random_string" "this" {
+resource random_string this {
   length  = 6
   upper   = false
   special = false
   number  = false
 }
 
-module "policies" {
-  source = "../../modules/policies/"
+data aws_caller_identity current {}
 
-  providers = {
-    aws = aws
-  }
+data aws_partition current {}
 
-  policies         = [for policy in local.policies : merge(local.policy_base, policy)]
-  policy_documents = [for policy_document in local.policy_documents : merge(local.policy_document_base, policy_document)]
-  policy_names     = local.policies[*].name
-}
+data aws_region current {}
 
-module "create_users" {
-  source = "../../modules/users/"
-
-  providers = {
-    aws = aws
-  }
-
-  # To create the managed policies in the same config, from the `policies` module,
-  # need to construct the ARNs manually in `users.policy_arns` and pass the ARN
-  # outputs from the module `policies` as `policy_arns`. This is because `users.policy_arns`
-  # is used in the for_each logic and passing the `policies` module output directly
-  # will generate an error:
-  #  > The "for_each" value depends on resource attributes that cannot be determined
-  #  > until apply, so Terraform cannot predict how many instances will be created.
-  #  > To work around this, use the -target argument to first apply only the
-  #  > resources that the for_each depends on.
-
-  inline_policies = local.user_inline_policies
-  policy_arns     = [for policy in module.policies.policies : policy.arn]
-  users           = [for user in local.users : merge(local.user_base, user)]
-
-  tags = {
-    Test = "true"
+data terraform_remote_state prereq {
+  backend = "local"
+  config = {
+    path = "prereq/terraform.tfstate"
   }
 }
 
-output "create_users" {
+output policies {
+  value = module.policies
+}
+
+output create_users {
   value = module.create_users
 }
