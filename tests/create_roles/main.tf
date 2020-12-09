@@ -42,11 +42,11 @@ locals {
   inline_policies = [for policy in [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
   ] : merge(local.policy_base, policy)]
 
@@ -69,7 +69,7 @@ locals {
   }
 
   assume_role_policy = {
-    template       = "trusts/template.json"
+    template       = "trusts/template.json.hcl.tpl"
     template_paths = ["${path.module}/../templates/"]
     template_vars  = local.template_vars_base
   }

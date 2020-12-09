@@ -33,12 +33,12 @@ locals {
   policies = [
     {
       name     = "tardigrade-alpha-create-users-test"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-create-users-test"
       path     = "/tardigrade/"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
   ]
 }

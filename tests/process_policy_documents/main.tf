@@ -15,7 +15,7 @@ locals {
   policies = [
     {
       name     = "tardigrade-alpha-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
@@ -25,7 +25,7 @@ locals {
     },
     {
       name     = "tardigrade-beta-${data.terraform_remote_state.prereq.outputs.random_string.result}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
   ]
 
