@@ -25,7 +25,7 @@ Terraform module to create IAM Managed Policies.
 | template\_paths | List of directory paths to search for the `template` policy document. Policy statements are merged by SID in list order | `list(string)` | n/a | yes |
 | description | Description for the IAM policy | `string` | `null` | no |
 | path | Path for the IAM policy | `string` | `null` | no |
-| template\_vars | Map of template vars to apply to the policy document | `map(string)` | `{}` | no |
+| template\_vars | Map of template vars to apply to the policy document | `any` | `{}` | no |
 
 ## Outputs
 

@@ -27,6 +27,6 @@ variable path {
 
 variable template_vars {
   description = "Map of template vars to apply to the policy document"
-  type        = map(string)
+  type        = any
   default     = {}
 }

@@ -8,7 +8,7 @@ variable "groups" {
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = map(string)
+      template_vars  = any
     }))
     managed_policies = list(object({
       name = string
@@ -26,7 +26,7 @@ variable "policies" {
     path           = string
     template       = string
     template_paths = list(string)
-    template_vars  = map(string)
+    template_vars  = any
   }))
   default = []
 }
@@ -45,13 +45,13 @@ variable "roles" {
     assume_role_policy = object({
       template       = string
       template_paths = list(string)
-      template_vars  = map(string)
+      template_vars  = any
     })
     inline_policies = list(object({
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = map(string)
+      template_vars  = any
     }))
     managed_policies = list(object({
       name = string
@@ -73,7 +73,7 @@ variable "users" {
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = map(string)
+      template_vars  = any
     }))
     managed_policies = list(object({
       name = string

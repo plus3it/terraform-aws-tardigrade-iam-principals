@@ -8,7 +8,7 @@ variable assume_role_policy {
   type = object({
     template       = string
     template_paths = list(string)
-    template_vars  = map(string)
+    template_vars  = any
   })
 }
 
@@ -36,7 +36,7 @@ variable inline_policies {
     name           = string
     template       = string
     template_paths = list(string)
-    template_vars  = map(string)
+    template_vars  = any
   }))
   default = []
 }
