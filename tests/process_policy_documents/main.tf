@@ -1,8 +1,8 @@
-provider aws {
+provider "aws" {
   region = "us-east-1"
 }
 
-module policy_documents {
+module "policy_documents" {
   source   = "../..//modules/policy_document"
   for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
@@ -33,8 +33,9 @@ locals {
     path          = null
     template_vars = local.template_vars_base
     template_paths = [
-      "${path.module}/../templates/",
-      "${path.module}/fake/path/",
+      "${path.module}/../templates",
+      "${path.module}/../template_var_lists",
+      "${path.module}/fake/path",
     ]
   }
 
@@ -43,29 +44,33 @@ locals {
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
     random_string = random_string.this.result
+    instances = [
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/i-foo*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/i-bar*",
+    ]
   }
 }
 
-resource random_string this {
+resource "random_string" "this" {
   length  = 6
   upper   = false
   special = false
   number  = false
 }
 
-data aws_caller_identity current {}
+data "aws_caller_identity" "current" {}
 
-data aws_partition current {}
+data "aws_partition" "current" {}
 
-data aws_region current {}
+data "aws_region" "current" {}
 
-data terraform_remote_state prereq {
+data "terraform_remote_state" "prereq" {
   backend = "local"
   config = {
     path = "prereq/terraform.tfstate"
   }
 }
 
-output policy_documents {
+output "policy_documents" {
   value = module.policy_documents
 }
