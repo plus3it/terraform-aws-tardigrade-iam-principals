@@ -8,7 +8,7 @@ variable "groups" {
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = any
+      template_vars  = map(string)
     }))
     managed_policies = list(object({
       name = string
@@ -51,7 +51,7 @@ variable "roles" {
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = any
+      template_vars  = map(string)
     }))
     managed_policies = list(object({
       name = string
@@ -73,7 +73,7 @@ variable "users" {
       name           = string
       template       = string
       template_paths = list(string)
-      template_vars  = any
+      template_vars  = map(string)
     }))
     managed_policies = list(object({
       name = string
