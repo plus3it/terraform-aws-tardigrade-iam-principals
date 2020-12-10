@@ -5,14 +5,17 @@
 *.tfstate
 *.tfstate.*
 
+# terraform lock file
+.terraform.lock.hcl
+
+# terraform crash log
+crash.log
+
 # .tfvars files
 *.tfvars
 
 # ignore this file
 !tfmodule-template.tf
-
-# ignore log file
-iam_handler.log
 
 # tardigrade-ci
 .tardigrade-ci
