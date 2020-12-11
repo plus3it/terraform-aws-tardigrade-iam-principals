@@ -2,34 +2,10 @@ terraform {
   required_version = ">= 0.13"
 }
 
-locals {
-  inline_policies  = { for policy in var.inline_policies : policy.name => policy }
-  managed_policies = { for policy in var.managed_policies : policy.name => policy }
-}
-
-# template the assume role policy document
-module assume_role_policy_document {
-  source = "../policy_document"
-
-  template       = var.assume_role_policy.template
-  template_paths = var.assume_role_policy.template_paths
-  template_vars  = var.assume_role_policy.template_vars
-}
-
-# template the inline policy documents
-module inline_policy_documents {
-  source   = "../policy_document"
-  for_each = local.inline_policies
-
-  template       = each.value.template
-  template_paths = each.value.template_paths
-  template_vars  = each.value.template_vars
-}
-
-# create the IAM roles
-resource aws_iam_role this {
+# create the IAM role
+resource "aws_iam_role" "this" {
   name               = var.name
-  assume_role_policy = module.assume_role_policy_document.policy_document
+  assume_role_policy = var.assume_role_policy
 
   description           = var.description
   force_detach_policies = var.force_detach_policies
@@ -44,8 +20,8 @@ resource aws_iam_role this {
 }
 
 # attach managed policies to the IAM roles
-resource aws_iam_role_policy_attachment this {
-  for_each = local.managed_policies
+resource "aws_iam_role_policy_attachment" "this" {
+  for_each = { for policy in var.managed_policies : policy.name => policy }
 
   policy_arn = each.value.arn
   role       = aws_iam_role.this.id
@@ -56,17 +32,17 @@ resource aws_iam_role_policy_attachment this {
 }
 
 # create inline policies for the IAM roles
-resource aws_iam_role_policy this {
-  for_each = local.inline_policies
+resource "aws_iam_role_policy" "this" {
+  for_each = { for policy in var.inline_policies : policy.name => policy }
 
   name   = each.key
   role   = aws_iam_role.this.id
-  policy = module.inline_policy_documents[each.key].policy_document
+  policy = each.value.policy
 }
 
-# attach an instance profile to the IAM roles
-resource aws_iam_instance_profile this {
-  for_each = toset(var.instance_profile == true ? [var.name] : [])
+# attach an instance profile to the IAM role
+resource "aws_iam_instance_profile" "this" {
+  count = var.instance_profile ? 1 : 0
 
   name = aws_iam_role.this.id
   role = aws_iam_role.this.id

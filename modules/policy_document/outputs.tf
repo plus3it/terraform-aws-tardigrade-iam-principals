@@ -1,7 +1,7 @@
 # select the policy document to return, based on the number of template_paths provided. due to the
 # way policy documents are merged in the data sources, the policy document will be in the data source
 # that matches the length of the list.
-output policy_document {
+output "policy_document" {
   description = "Rendered and templated policy document"
   value = (
     local.template_paths_length == 0) ? local.empty : (
