@@ -1,23 +1,56 @@
-provider aws {
+provider "aws" {
   region = "us-east-1"
 }
 
-module policies {
-  source   = "../../..//modules/policy"
+module "policies" {
+  source   = "../../../modules/policy"
   for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
-  description    = each.value.description
-  name           = each.key
-  path           = each.value.path
+  description = each.value.description
+  name        = each.key
+  path        = each.value.path
+  policy      = each.value.policy
+}
+
+module "policy_documents" {
+  source   = "../../../modules/policy_document"
+  for_each = { for policy_document in local.policy_documents : policy_document.name => merge(local.policy_document_base, policy_document) }
+
   template       = each.value.template
   template_paths = each.value.template_paths
   template_vars  = each.value.template_vars
 }
 
 locals {
+  policies = [
+    {
+      name   = "tardigrade-alpha-create-users-test"
+      policy = module.policy_documents["tardigrade-alpha-create-users-test"].policy_document
+    },
+    {
+      name   = "tardigrade-beta-create-users-test"
+      path   = "/tardigrade/"
+      policy = module.policy_documents["tardigrade-beta-create-users-test"].policy_document
+    },
+  ]
+
+  policy_documents = [
+    {
+      name     = "tardigrade-alpha-create-users-test"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-create-users-test"
+      template = "policies/template.json"
+    },
+  ]
+
   policy_base = {
-    path          = null
-    description   = null
+    path        = null
+    description = null
+  }
+
+  policy_document_base = {
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../../templates/"
@@ -29,37 +62,25 @@ locals {
     "partition"  = data.aws_partition.current.partition
     "region"     = data.aws_region.current.name
   }
-
-  policies = [
-    {
-      name     = "tardigrade-alpha-create-users-test"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-create-users-test"
-      path     = "/tardigrade/"
-      template = "policies/template.json"
-    },
-  ]
 }
 
-resource random_string this {
+resource "random_string" "this" {
   length  = 6
   upper   = false
   special = false
   number  = false
 }
 
-data aws_caller_identity current {}
+data "aws_caller_identity" "current" {}
 
-data aws_partition current {}
+data "aws_partition" "current" {}
 
-data aws_region current {}
+data "aws_region" "current" {}
 
-output policies {
+output "policies" {
   value = module.policies
 }
 
-output random_string {
+output "random_string" {
   value = random_string.this
 }
