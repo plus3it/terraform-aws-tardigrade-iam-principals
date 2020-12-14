@@ -1,43 +1,24 @@
-provider aws {
+provider "aws" {
   region = "us-east-1"
 }
 
-module create_all {
+module "create_all" {
   source = "../../"
 
   policies = local.policies
 
   groups = local.groups
+  roles  = local.roles
   users  = local.users
+}
 
-  roles = [for role in local.roles : merge(
-    role,
-    {
-      inline_policies = [
-        // This setup is designed to test for_each issues with inline policies. The "lookup" approach
-        // below causes a for_each error:
-        //for policy in lookup(role, "inline_policies", []) : merge(
-        // but if the role object is *guaranteed* to have the inline_policies attribute then the
-        // the lookup is not needed and this will work:
-        for policy in role.inline_policies : merge(
-          policy,
-          {
-            template_vars = merge(
-              local.template_vars_base,
-              {
-                instance_arns = join(
-                  "\",\"",
-                  [
-                    "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
-                  ]
-                )
-              }
-            )
-          }
-        )
-      ]
-    }
-  )]
+module "policy_documents" {
+  source   = "../../modules/policy_document"
+  for_each = { for policy_document in local.policy_documents : policy_document.name => merge(local.policy_document_base, policy_document) }
+
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
 
 /*
@@ -63,131 +44,6 @@ resource "random_string" "foo" {
 */
 
 locals {
-  test_id = data.terraform_remote_state.prereq.outputs.random_string.result
-
-  policy_arn_base = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy"
-
-  policy_base = {
-    path          = null
-    description   = null
-    template_vars = local.template_vars_base
-    template_paths = [
-      "${path.module}/../templates/",
-      "${path.module}/../resource_cycle/",
-    ]
-  }
-
-  template_vars_base = {
-    account_id    = data.aws_caller_identity.current.account_id
-    partition     = data.aws_partition.current.partition
-    region        = data.aws_region.current.name
-    random_string = random_string.this.result
-    instance_arns = join(
-      "\",\"",
-      [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-      ]
-    )
-  }
-
-  access_key_base = {
-    pgp_key = null
-    status  = null
-  }
-
-  access_keys = [for access_key in [
-    {
-      name = "tardigrade-alpha-${local.test_id}"
-    },
-    {
-      name = "tardigrade-beta-${local.test_id}"
-    },
-  ] : merge(local.access_key_base, access_key)]
-
-  inline_policies = [for policy in [
-    {
-      name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
-    },
-  ] : merge(local.policy_base, policy)]
-
-  managed_policies = [
-    {
-      name = "tardigrade-alpha-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    },
-    {
-      name = "tardigrade-beta-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
-    },
-  ]
-
-  policies = [for policy in [
-    {
-      name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
-    },
-    {
-      name     = "tardigrade-beta-${local.test_id}"
-      path     = "/tardigrade/"
-      template = "policies/template.json"
-      template_vars = merge(
-        local.template_vars_base,
-        {
-          instance_arns = join(
-            "\",\"",
-            [
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
-              // Do not remove! Used to detect resource cycles, see comments above.
-              //"arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
-            ]
-          )
-        }
-      )
-    },
-  ] : merge(local.policy_base, policy)]
-
-  group_base = {
-    inline_policies  = []
-    managed_policies = []
-    path             = null
-    user_names       = []
-  }
-
-  role_base = {
-    assume_role_policy    = local.assume_role_policy
-    description           = null
-    force_detach_policies = null
-    inline_policies       = []
-    instance_profile      = null
-    managed_policies      = []
-    max_session_duration  = null
-    path                  = null
-    permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                  = {}
-  }
-
-  assume_role_policy = {
-    template       = "trusts/template.json"
-    template_paths = ["${path.module}/../templates/"]
-    template_vars  = local.template_vars_base
-  }
-
-  user_base = {
-    access_keys          = []
-    inline_policies      = []
-    managed_policies     = []
-    force_destroy        = null
-    path                 = null
-    permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                 = {}
-  }
-
   groups = [for group in [
     {
       name             = "tardigrade-group-alpha-${local.test_id}"
@@ -281,28 +137,193 @@ locals {
       name = "tardigrade-user-epsilon-${local.test_id}"
     },
   ] : merge(local.user_base, user)]
+
+  policies = [for policy in [
+    {
+      name   = "tardigrade-alpha-${local.test_id}"
+      policy = module.policy_documents["tardigrade-alpha-${local.test_id}"].policy_document
+    },
+    {
+      name   = "tardigrade-beta-${local.test_id}"
+      path   = "/tardigrade/"
+      policy = module.policy_documents["tardigrade-beta-${local.test_id}"].policy_document
+    },
+  ] : merge(local.policy_base, policy)]
+
+  policy_documents = [
+    {
+      name     = "tardigrade-alpha-${local.test_id}"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-${local.test_id}"
+      template = "policies/template.json"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          instance_arns = join(
+            "\",\"",
+            [
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+              # Do not remove! Used to detect resource cycles, see comments above.
+              # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+            ]
+          )
+        }
+      )
+    },
+    {
+      name     = "tardigrade-alpha-inline-${local.test_id}"
+      template = "policies/template.json"
+    },
+    {
+      name     = "tardigrade-beta-inline-${local.test_id}"
+      template = "policies/complex_object.json.hcl.tpl"
+      template_vars = merge(
+        local.template_vars_base,
+        {
+          allowed_regions = [
+            "us-east-1",
+            "us-east-2"
+          ]
+          instance_arns = [
+            "arn:${local.partition}:ec2:${local.region}:${local.account_id}:instance/*",
+            "arn:${local.partition}:ec2:${local.region}:${local.account_id}:instance/i-${local.random_string}"
+          ]
+        }
+      )
+    },
+    {
+      name     = "tardigrade-assume-role-${local.test_id}"
+      template = "trusts/template.json"
+    },
+  ]
+
+  inline_policies = [
+    {
+      name   = "tardigrade-alpha-${local.test_id}"
+      policy = module.policy_documents["tardigrade-alpha-inline-${local.test_id}"].policy_document
+    },
+    {
+      name   = "tardigrade-beta-${local.test_id}"
+      policy = module.policy_documents["tardigrade-beta-inline-${local.test_id}"].policy_document
+    },
+  ]
+
+  managed_policies = [
+    {
+      name = "tardigrade-alpha-${local.test_id}"
+      arn  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    },
+    {
+      name = "tardigrade-beta-${local.test_id}"
+      arn  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
+    },
+  ]
+
+  access_keys = [for access_key in [
+    {
+      name = "tardigrade-alpha-${local.test_id}"
+    },
+    {
+      name = "tardigrade-beta-${local.test_id}"
+    },
+  ] : merge(local.access_key_base, access_key)]
+
+  policy_arn_base = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy"
+
+  policy_base = {
+    path        = null
+    description = null
+  }
+
+  policy_document_base = {
+    template_vars = local.template_vars_base
+    template_paths = [
+      "${path.module}/../templates/",
+      "${path.module}/../resource_cycle/",
+    ]
+  }
+
+  template_vars_base = {
+    account_id    = local.account_id
+    partition     = local.partition
+    region        = local.region
+    random_string = local.random_string
+    instance_arns = join(
+      "\",\"",
+      [
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      ]
+    )
+  }
+
+  access_key_base = {
+    pgp_key = null
+    status  = null
+  }
+
+  group_base = {
+    inline_policies  = []
+    managed_policies = []
+    path             = null
+    user_names       = []
+  }
+
+  role_base = {
+    assume_role_policy    = module.policy_documents["tardigrade-assume-role-${local.test_id}"].policy_document
+    description           = null
+    force_detach_policies = null
+    inline_policies       = []
+    instance_profile      = false
+    managed_policies      = []
+    max_session_duration  = null
+    path                  = null
+    permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    tags                  = {}
+  }
+
+  user_base = {
+    access_keys          = []
+    inline_policies      = []
+    managed_policies     = []
+    force_destroy        = null
+    path                 = null
+    permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    tags                 = {}
+  }
 }
 
-resource random_string this {
+locals {
+  test_id = data.terraform_remote_state.prereq.outputs.random_string.result
+
+  account_id    = data.aws_caller_identity.current.account_id
+  partition     = data.aws_partition.current.partition
+  region        = data.aws_region.current.name
+  random_string = random_string.this.result
+}
+
+resource "random_string" "this" {
   length  = 6
   upper   = false
   special = false
   number  = false
 }
 
-data aws_caller_identity current {}
+data "aws_caller_identity" "current" {}
 
-data aws_partition current {}
+data "aws_partition" "current" {}
 
-data aws_region current {}
+data "aws_region" "current" {}
 
-data terraform_remote_state prereq {
+data "terraform_remote_state" "prereq" {
   backend = "local"
   config = {
     path = "prereq/terraform.tfstate"
   }
 }
 
-output create_all {
+output "create_all" {
   value = module.create_all
 }
