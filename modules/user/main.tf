@@ -8,7 +8,13 @@ resource "aws_iam_user" "this" {
   force_destroy        = var.force_destroy
   path                 = var.path
   permissions_boundary = var.permissions_boundary
-  tags                 = var.tags
+
+  tags = merge(
+    {
+      Name = var.name
+    },
+    var.tags,
+  )
 
   depends_on = [
     var.depends_on_policies
