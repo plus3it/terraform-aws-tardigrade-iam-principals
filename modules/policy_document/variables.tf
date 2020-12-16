@@ -4,7 +4,7 @@ variable "template" {
 }
 
 variable "template_paths" {
-  description = "List of directory paths to search for the `template` policy document. Policy statements are merged by SID in list order"
+  description = "List of directory paths to search for the `template` policy document. Max of 10 paths. Policy statements are merged by SID in list order"
   type        = list(string)
   validation {
     condition     = length(var.template_paths) <= 10
