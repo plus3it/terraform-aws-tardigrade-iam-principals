@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "policy_documents" {
-  source   = "../..//modules/policy_document"
+  source   = "../../modules/policy_document"
   for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
   template       = each.value.template

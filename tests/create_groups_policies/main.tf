@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "create_groups" {
-  source   = "../..//modules/group"
+  source   = "../../modules/group"
   for_each = { for group in local.groups : group.name => merge(local.group_base, group) }
 
   name             = each.key
@@ -14,7 +14,7 @@ module "create_groups" {
 }
 
 module "policies" {
-  source   = "../..//modules/policy"
+  source   = "../../modules/policy"
   for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }
 
   description = each.value.description

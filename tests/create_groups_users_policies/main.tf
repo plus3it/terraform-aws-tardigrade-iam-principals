@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "create_groups" {
-  source   = "../..//modules/group"
+  source   = "../../modules/group"
   for_each = { for group in local.groups : group.name => merge(local.group_base, group) }
 
   name             = each.key
@@ -14,7 +14,7 @@ module "create_groups" {
 }
 
 module "users" {
-  source   = "../..//modules/user"
+  source   = "../../modules/user"
   for_each = { for user in local.users : user.name => merge(local.user_base, user) }
 
   name                 = each.key
