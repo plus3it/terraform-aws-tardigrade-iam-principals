@@ -5,10 +5,8 @@ variable "groups" {
     path       = string
     user_names = list(string)
     inline_policies = list(object({
-      name           = string
-      template       = string
-      template_paths = list(string)
-      template_vars  = map(string)
+      name   = string
+      policy = string
     }))
     managed_policies = list(object({
       name = string
@@ -21,12 +19,10 @@ variable "groups" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    description    = string
-    name           = string
-    path           = string
-    template       = string
-    template_paths = list(string)
-    template_vars  = map(string)
+    description = string
+    name        = string
+    path        = string
+    policy      = string
   }))
   default = []
 }
@@ -35,6 +31,7 @@ variable "roles" {
   description = "Schema list of IAM roles"
   type = list(object({
     name                  = string
+    assume_role_policy    = string
     description           = string
     force_detach_policies = bool
     instance_profile      = bool
@@ -42,16 +39,9 @@ variable "roles" {
     path                  = string
     permissions_boundary  = string
     tags                  = map(string)
-    assume_role_policy = object({
-      template       = string
-      template_paths = list(string)
-      template_vars  = map(string)
-    })
     inline_policies = list(object({
-      name           = string
-      template       = string
-      template_paths = list(string)
-      template_vars  = map(string)
+      name   = string
+      policy = string
     }))
     managed_policies = list(object({
       name = string
@@ -70,10 +60,8 @@ variable "users" {
     permissions_boundary = string
     tags                 = map(string)
     inline_policies = list(object({
-      name           = string
-      template       = string
-      template_paths = list(string)
-      template_vars  = map(string)
+      name   = string
+      policy = string
     }))
     managed_policies = list(object({
       name = string

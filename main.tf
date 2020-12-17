@@ -11,13 +11,11 @@ module "policies" {
   source   = "./modules/policy"
   for_each = { for policy in var.policies : policy.name => policy }
 
-  name = each.key
+  name   = each.key
+  policy = each.value.policy
 
-  description    = each.value.description
-  path           = each.value.path
-  template       = each.value.template
-  template_paths = each.value.template_paths
-  template_vars  = each.value.template_vars
+  description = each.value.description
+  path        = each.value.path
 }
 
 module "groups" {

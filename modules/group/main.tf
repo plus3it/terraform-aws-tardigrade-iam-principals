@@ -2,30 +2,15 @@ terraform {
   required_version = ">= 0.13"
 }
 
-locals {
-  inline_policies  = { for policy in var.inline_policies : policy.name => policy }
-  managed_policies = { for policy in var.managed_policies : policy.name => policy }
-}
-
-# template the inline policy documents
-module inline_policy_documents {
-  source   = "../policy_document"
-  for_each = local.inline_policies
-
-  template       = each.value.template
-  template_paths = each.value.template_paths
-  template_vars  = each.value.template_vars
-}
-
 # create the IAM group
-resource aws_iam_group this {
+resource "aws_iam_group" "this" {
   name = var.name
   path = var.path
 }
 
 # attach managed policies to the IAM groups
-resource aws_iam_group_policy_attachment this {
-  for_each = local.managed_policies
+resource "aws_iam_group_policy_attachment" "this" {
+  for_each = { for policy in var.managed_policies : policy.name => policy }
 
   group      = aws_iam_group.this.id
   policy_arn = each.value.arn
@@ -36,16 +21,16 @@ resource aws_iam_group_policy_attachment this {
 }
 
 # create inline policies for the IAM groups
-resource aws_iam_group_policy this {
-  for_each = local.inline_policies
+resource "aws_iam_group_policy" "this" {
+  for_each = { for policy in var.inline_policies : policy.name => policy }
 
   name   = each.key
   group  = aws_iam_group.this.id
-  policy = module.inline_policy_documents[each.key].policy_document
+  policy = each.value.policy
 }
 
 # manage group memberships
-resource aws_iam_user_group_membership this {
+resource "aws_iam_user_group_membership" "this" {
   for_each = toset(var.user_names)
 
   groups = [aws_iam_group.this.id]
