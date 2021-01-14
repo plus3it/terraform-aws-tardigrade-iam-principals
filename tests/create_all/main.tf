@@ -325,5 +325,6 @@ data "terraform_remote_state" "prereq" {
 }
 
 output "create_all" {
-  value = module.create_all
+  value     = module.create_all
+  sensitive = true
 }
