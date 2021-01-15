@@ -16,4 +16,5 @@ output "roles" {
 output "users" {
   description = "IAM user resources"
   value       = module.users
+  sensitive   = true
 }
