@@ -44,6 +44,16 @@ locals {
         }
       )
     },
+    {
+      name     = "tardigrade-delta-${local.test_id}"
+      template = "policies/template.json"
+      template_paths = concat(
+        local.policy_base.template_paths,
+        [
+          "${path.module}/override/"
+        ]
+      )
+    },
   ]
 
   policy_base = {
