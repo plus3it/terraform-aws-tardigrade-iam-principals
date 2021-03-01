@@ -4,12 +4,8 @@ variable "template" {
 }
 
 variable "template_paths" {
-  description = "List of directory paths to search for the `template` policy document. Max of 10 paths. Policy statements are merged by SID in list order"
+  description = "List of directory paths to search for the `template` policy document. Policy statements are merged by SID in list order. If the `template` does not exist at a given template_path, an empty policy is used as a placeholder. If the `template` does not exist at *any* template_path, this module returns empty policy"
   type        = list(string)
-  validation {
-    condition     = length(var.template_paths) <= 10
-    error_message = "The template_paths argument supports only up to 10 paths."
-  }
 }
 
 variable "template_vars" {
