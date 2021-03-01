@@ -217,5 +217,6 @@ output "policies" {
 }
 
 output "create_users" {
-  value = module.create_users
+  value     = module.create_users
+  sensitive = true
 }

@@ -154,5 +154,6 @@ data "terraform_remote_state" "prereq" {
 }
 
 output "create_users" {
-  value = module.create_users
+  value     = module.create_users
+  sensitive = true
 }
