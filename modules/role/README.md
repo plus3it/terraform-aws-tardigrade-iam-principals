@@ -9,12 +9,13 @@ Terraform module to create IAM roles
 | Name | Version |
 |------|---------|
 | terraform | >= 0.13 |
+| aws | >= 3.30.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | >= 3.30.0 |
 
 ## Inputs
 
@@ -27,7 +28,7 @@ Terraform module to create IAM roles
 | force\_detach\_policies | Boolean to control whether to force detach any policies the role has before destroying it | `bool` | `null` | no |
 | inline\_policies | Schema list of IAM Role inline policies, including `name` and `policy` | <pre>list(object({<br>    name   = string<br>    policy = string<br>  }))</pre> | `[]` | no |
 | instance\_profile | Boolean to control whether to create an instance profile for the role | `bool` | `false` | no |
-| managed\_policies | Schema list of IAM managed policies to attach to the role, including the policy `name` and `arn` | <pre>list(object({<br>    name = string<br>    arn  = string<br>  }))</pre> | `[]` | no |
+| managed\_policy\_arns | List of IAM managed policy ARNs to attach to the role | `list(string)` | `[]` | no |
 | max\_session\_duration | Maximum session duration (in seconds) to set for the role. The default is one hour. This setting can have a value from 1 hour to 12 hours | `number` | `null` | no |
 | path | Path for the role | `string` | `null` | no |
 | permissions\_boundary | ARN of the managed policy to set as the permissions boundary for the role | `string` | `null` | no |
@@ -37,9 +38,7 @@ Terraform module to create IAM roles
 
 | Name | Description |
 |------|-------------|
-| inline\_policies | IAM inline policy attachment resources |
 | instance\_profile | IAM instance profile resource |
-| managed\_policies | IAM managed policy attachment resources |
 | roles | IAM role resource |
 
 <!-- END TFDOCS -->
