@@ -13,7 +13,7 @@ module "create_roles" {
   force_detach_policies = each.value.force_detach_policies
   inline_policies       = each.value.inline_policies
   instance_profile      = each.value.instance_profile
-  managed_policies      = each.value.managed_policies
+  managed_policy_arns   = each.value.managed_policy_arns
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
   permissions_boundary  = each.value.permissions_boundary
@@ -34,7 +34,7 @@ locals {
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       inline_policies       = local.inline_policies
-      managed_policies      = local.managed_policies
+      managed_policy_arns   = local.managed_policy_arns
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -47,12 +47,12 @@ locals {
     {
       name                 = "tardigrade-role-beta-${local.test_id}"
       inline_policies      = local.inline_policies
-      managed_policies     = local.managed_policies
+      managed_policy_arns  = local.managed_policy_arns
       permissions_boundary = null
     },
     {
-      name             = "tardigrade-role-chi-${local.test_id}"
-      managed_policies = local.managed_policies
+      name                = "tardigrade-role-chi-${local.test_id}"
+      managed_policy_arns = local.managed_policy_arns
     },
     {
       name            = "tardigrade-role-delta-${local.test_id}"
@@ -93,10 +93,7 @@ locals {
     },
   ]
 
-  managed_policies = [for object in data.terraform_remote_state.prereq.outputs.policies : {
-    name = object.policy.name
-    arn  = object.policy.arn
-  }]
+  managed_policy_arns = [for object in data.terraform_remote_state.prereq.outputs.policies : object.policy.arn]
 
   policy_document_base = {
     template_vars = local.template_vars_base
@@ -118,7 +115,7 @@ locals {
     force_detach_policies = null
     inline_policies       = []
     instance_profile      = false
-    managed_policies      = []
+    managed_policy_arns   = []
     max_session_duration  = null
     path                  = null
     permissions_boundary  = data.terraform_remote_state.prereq.outputs.policies["tardigrade-alpha-create-roles-test"].policy.arn
