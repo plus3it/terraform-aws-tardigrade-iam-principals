@@ -41,13 +41,10 @@ variable "instance_profile" {
   default     = false
 }
 
-variable "managed_policies" {
-  description = "Schema list of IAM managed policies to attach to the role, including the policy `name` and `arn`"
-  type = list(object({
-    name = string
-    arn  = string
-  }))
-  default = []
+variable "managed_policy_arns" {
+  description = "List of IAM managed policy ARNs to attach to the role"
+  type        = list(string)
+  default     = []
 }
 
 variable "max_session_duration" {

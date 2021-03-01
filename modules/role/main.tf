@@ -9,9 +9,18 @@ resource "aws_iam_role" "this" {
 
   description           = var.description
   force_detach_policies = var.force_detach_policies
+  managed_policy_arns   = var.managed_policy_arns
   max_session_duration  = var.max_session_duration
   path                  = var.path
   permissions_boundary  = var.permissions_boundary
+
+  dynamic "inline_policy" {
+    for_each = var.inline_policies
+    content {
+      name   = inline_policy.value.name
+      policy = inline_policy.value.policy
+    }
+  }
 
   tags = merge(
     {
@@ -23,27 +32,6 @@ resource "aws_iam_role" "this" {
   depends_on = [
     var.depends_on_policies
   ]
-}
-
-# attach managed policies to the IAM roles
-resource "aws_iam_role_policy_attachment" "this" {
-  for_each = { for policy in var.managed_policies : policy.name => policy }
-
-  policy_arn = each.value.arn
-  role       = aws_iam_role.this.id
-
-  depends_on = [
-    var.depends_on_policies
-  ]
-}
-
-# create inline policies for the IAM roles
-resource "aws_iam_role_policy" "this" {
-  for_each = { for policy in var.inline_policies : policy.name => policy }
-
-  name   = each.key
-  role   = aws_iam_role.this.id
-  policy = each.value.policy
 }
 
 # attach an instance profile to the IAM role
