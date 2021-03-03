@@ -9,6 +9,7 @@ Terraform module to create IAM managed policies, roles, and users
 | Name | Version |
 |------|---------|
 | terraform | >= 0.13 |
+| aws | >= 3.30.0 |
 
 ## Providers
 

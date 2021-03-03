@@ -4,6 +4,93 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 11.0.0
+
+**Released**: 2021.03.01
+
+**Commit Delta**: [Change from 10.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/10.0.1...11.0.0)
+
+**Summary**:
+
+*   Uses native features in `policy_documents` module to eliminate limitaton on
+    10 `template_paths`. Increases minimum version of AWS provider for `policy_documents`
+    to 3.28.0. See [PR #124](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/124).
+*   Manages *exclusive* attachments of managed and inline policies to IAM roles.
+    This allows terraform to remove any external attachments of policies from the
+    managed role. This does not yet apply to IAM users or groups. Bumps minimum
+    version of AWS provider for the top-level and roles modules to 3.30.0.
+    See [PR #124](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/124).
+
+### 10.0.1
+
+**Released**: 2021.01.15
+
+**Commit Delta**: [Change from 10.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/10.0.0...10.0.1)
+
+**Summary**:
+
+*   Marks `users` output sensitive as it may contain `access_keys`.
+    See [PR #120](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/120).
+
+### 10.0.0
+
+**Released**: 2020.12.17
+
+**Commit Delta**: [Change from 9.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/9.0.1...10.0.0)
+
+**Summary**:
+
+*   Modifies all modules to accept a pure string for `policy_document` variables,
+    instead of complex objects. This requires users to resolve the `policy_document`
+    separately from the groups, users, and roles modules and objects. The included
+    nested module, `modules/policy_document`, can be used to resolve the policy
+    document using the same set of attributes as before. See [PR #111](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/111).
+
+### 9.0.1
+
+**Released**: 2020.09.29
+
+**Commit Delta**: [Change from 9.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/9.0.0...9.0.1)
+
+**Summary**:
+
+*   Uses native features in `policy_document` module to remove dependency on external
+    provider and remove deprecated `template_file` provider. See [PR #104](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/104).
+
+### 9.0.0
+
+**Released**: 2020.09.29
+
+**Commit Delta**: [Change from 8.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/8.0.0...9.0.0)
+
+**Summary**:
+
+*   Relies on module-level `for_each` throughout to create multiples of resources.
+    See [PR #100](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/100).
+*   Bumps minimum terraform version to 0.13
+
+### 8.0.0
+
+**Released**: 2020.09.18
+
+**Commit Delta**: [Change from 7.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/7.0.0...8.0.0)
+
+**Summary**:
+
+*   Removes the `create_*` variables, relying on terraform 0.13 and module-level
+    `for_each` for equivalent functionality. See [PR #99](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/99).
+
+### 7.0.0
+
+**Released**: 2020.07.15
+
+**Commit Delta**: [Change from 6.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/6.0.0...7.0.0)
+
+**Summary**:
+
+*   Separates `policy_documents` attributes from `policies` variable to avoid resource
+    cycles. See [PR #95](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/pull/95).
+
 ### 6.0.0
 
 **Released**: 2020.05.05

@@ -1,5 +1,12 @@
 terraform {
   required_version = ">= 0.13"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.30.0"
+    }
+  }
 }
 
 locals {
@@ -44,7 +51,7 @@ module "roles" {
   force_detach_policies = each.value.force_detach_policies
   inline_policies       = each.value.inline_policies
   instance_profile      = each.value.instance_profile
-  managed_policies      = each.value.managed_policies
+  managed_policy_arns   = each.value.managed_policies[*].arn
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
   permissions_boundary  = each.value.permissions_boundary

@@ -18,9 +18,9 @@ iam_handler.log
 .tardigrade-ci
 tardigrade-ci/
 
-# eclint
-.git/
-
 # go tests
 go.sum
 go.mod
+
+# terraform lock file
+.terraform.lock.hcl
