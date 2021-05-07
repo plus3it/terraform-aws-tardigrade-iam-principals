@@ -8,37 +8,42 @@ Terraform module to create IAM roles
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.13 |
-| aws | >= 3.30.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.30.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 3.30.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.30.0 |
+
+## Resources
+
+| Name | Type |
+|------|------|
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| assume\_role\_policy | Assume role policy document for the IAM role | `string` | n/a | yes |
-| name | Name of the IAM role | `string` | n/a | yes |
-| depends\_on\_policies | List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for\_each limitations | `list(string)` | `[]` | no |
-| description | Description of the IAM role | `string` | `null` | no |
-| force\_detach\_policies | Boolean to control whether to force detach any policies the role has before destroying it | `bool` | `null` | no |
-| inline\_policies | Schema list of IAM Role inline policies, including `name` and `policy` | <pre>list(object({<br>    name   = string<br>    policy = string<br>  }))</pre> | `[]` | no |
-| instance\_profile | Boolean to control whether to create an instance profile for the role | `bool` | `false` | no |
-| managed\_policy\_arns | List of IAM managed policy ARNs to attach to the role | `list(string)` | `[]` | no |
-| max\_session\_duration | Maximum session duration (in seconds) to set for the role. The default is one hour. This setting can have a value from 1 hour to 12 hours | `number` | `null` | no |
-| path | Path for the role | `string` | `null` | no |
-| permissions\_boundary | ARN of the managed policy to set as the permissions boundary for the role | `string` | `null` | no |
-| tags | Map of tags to apply to all resources that support tags | `map(string)` | `{}` | no |
+| <a name="input_assume_role_policy"></a> [assume\_role\_policy](#input\_assume\_role\_policy) | Assume role policy document for the IAM role | `string` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | Name of the IAM role | `string` | n/a | yes |
+| <a name="input_depends_on_policies"></a> [depends\_on\_policies](#input\_depends\_on\_policies) | List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for\_each limitations | `list(string)` | `[]` | no |
+| <a name="input_description"></a> [description](#input\_description) | Description of the IAM role | `string` | `null` | no |
+| <a name="input_force_detach_policies"></a> [force\_detach\_policies](#input\_force\_detach\_policies) | Boolean to control whether to force detach any policies the role has before destroying it | `bool` | `null` | no |
+| <a name="input_inline_policies"></a> [inline\_policies](#input\_inline\_policies) | Schema list of IAM Role inline policies, including `name` and `policy` | <pre>list(object({<br>    name   = string<br>    policy = string<br>  }))</pre> | `[]` | no |
+| <a name="input_instance_profile"></a> [instance\_profile](#input\_instance\_profile) | Boolean to control whether to create an instance profile for the role | `bool` | `false` | no |
+| <a name="input_managed_policy_arns"></a> [managed\_policy\_arns](#input\_managed\_policy\_arns) | List of IAM managed policy ARNs to attach to the role | `list(string)` | `[]` | no |
+| <a name="input_max_session_duration"></a> [max\_session\_duration](#input\_max\_session\_duration) | Maximum session duration (in seconds) to set for the role. The default is one hour. This setting can have a value from 1 hour to 12 hours | `number` | `null` | no |
+| <a name="input_path"></a> [path](#input\_path) | Path for the role | `string` | `null` | no |
+| <a name="input_permissions_boundary"></a> [permissions\_boundary](#input\_permissions\_boundary) | ARN of the managed policy to set as the permissions boundary for the role | `string` | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to apply to all resources that support tags | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| instance\_profile | IAM instance profile resource |
-| roles | IAM role resource |
+| <a name="output_instance_profile"></a> [instance\_profile](#output\_instance\_profile) | IAM instance profile resource |
+| <a name="output_roles"></a> [roles](#output\_roles) | IAM role resource |
 
 <!-- END TFDOCS -->

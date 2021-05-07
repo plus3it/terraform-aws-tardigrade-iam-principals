@@ -8,27 +8,32 @@ Terraform module to create IAM Managed Policies.
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| name | Name of the IAM policy | `string` | n/a | yes |
-| policy | Policy document for the IAM policy | `string` | n/a | yes |
-| description | Description for the IAM policy | `string` | `null` | no |
-| path | Path for the IAM policy | `string` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the IAM policy | `string` | n/a | yes |
+| <a name="input_policy"></a> [policy](#input\_policy) | Policy document for the IAM policy | `string` | n/a | yes |
+| <a name="input_description"></a> [description](#input\_description) | Description for the IAM policy | `string` | `null` | no |
+| <a name="input_path"></a> [path](#input\_path) | Path for the IAM policy | `string` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| policy | IAM managed policy object |
+| <a name="output_policy"></a> [policy](#output\_policy) | IAM managed policy object |
 
 <!-- END TFDOCS -->
