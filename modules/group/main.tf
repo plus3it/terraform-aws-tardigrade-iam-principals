@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.13"
-}
-
 # create the IAM group
 resource "aws_iam_group" "this" {
   name = var.name
