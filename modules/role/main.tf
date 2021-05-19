@@ -1,14 +1,3 @@
-terraform {
-  required_version = ">= 0.13"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.30.0"
-    }
-  }
-}
-
 # create the IAM role
 resource "aws_iam_role" "this" {
   name               = var.name

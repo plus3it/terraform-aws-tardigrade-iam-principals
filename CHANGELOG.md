@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 11.0.1
+
+**Released**: 2021.05.13
+
+**Commit Delta**: [Change from 11.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/11.0.0...11.0.1)
+
+**Summary**:
+
+*   Adds version configs to improve tf015 compatibility.
+
 ### 11.0.0
 
 **Released**: 2021.03.01

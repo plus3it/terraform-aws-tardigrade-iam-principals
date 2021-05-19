@@ -1,14 +1,3 @@
-terraform {
-  required_version = ">= 0.13"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.30.0"
-    }
-  }
-}
-
 locals {
   depends_on_policies = [for object in module.policies : object.policy.arn]
   depends_on_users    = [for object in module.users : object.user.arn]

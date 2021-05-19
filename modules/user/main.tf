@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.13"
-}
-
 # create the IAM users
 resource "aws_iam_user" "this" {
   name                 = var.name
