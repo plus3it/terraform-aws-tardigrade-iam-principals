@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "create_groups" {
   source   = "../../modules/group"
   for_each = { for group in local.groups : group.name => merge(local.group_base, group) }

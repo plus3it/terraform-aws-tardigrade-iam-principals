@@ -6,5 +6,5 @@ resource "random_string" "this" {
 }
 
 output "random_string" {
-  value = random_string.this
+  value = "${random_string.this.result}"
 }
