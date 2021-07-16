@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "create_users" {
   source   = "../../modules/user"
   for_each = { for user in local.users : user.name => merge(local.user_base, user) }

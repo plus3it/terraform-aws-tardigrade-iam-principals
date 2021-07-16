@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "create_roles" {
   source   = "../../modules/role"
   for_each = { for role in local.roles : role.name => merge(local.role_base, role) }

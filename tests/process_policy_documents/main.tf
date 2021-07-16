@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "policy_documents" {
   source   = "../../modules/policy_document"
   for_each = { for policy in local.policies : policy.name => merge(local.policy_base, policy) }

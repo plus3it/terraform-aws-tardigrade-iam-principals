@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "no_create_all" {
   source = "../../"
   count  = 0

@@ -8,9 +8,6 @@
 # .tfvars files
 *.tfvars
 
-# ignore this file
-!tfmodule-template.tf
-
 # ignore log file
 iam_handler.log
 
@@ -18,9 +15,8 @@ iam_handler.log
 .tardigrade-ci
 tardigrade-ci/
 
-# go tests
-go.sum
-go.mod
-
 # terraform lock file
 .terraform.lock.hcl
+
+# Cache created by pytest
+tests/__pycache__/
