@@ -164,7 +164,7 @@ locals {
     account_id    = data.aws_caller_identity.current.account_id
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
-    random_string = "${random_string.this.result}"
+    random_string = random_string.this.result
     instance_arns = join(
       "\",\"",
       [
@@ -185,7 +185,7 @@ locals {
 }
 
 locals {
-  test_id = data.terraform_remote_state.prereq.outputs.random_string
+  test_id = data.terraform_remote_state.prereq.outputs.random_string.result
 }
 
 resource "random_string" "this" {
