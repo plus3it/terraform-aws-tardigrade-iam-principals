@@ -36,9 +36,12 @@ variable "inline_policies" {
 }
 
 variable "instance_profile" {
-  description = "Boolean to control whether to create an instance profile for the role"
-  type        = bool
-  default     = false
+  description = "Schema object of a role's instance profile"
+  type = object({
+    name = string
+    path = string
+  })
+  default = null
 }
 
 variable "managed_policy_arns" {
