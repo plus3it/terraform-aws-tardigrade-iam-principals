@@ -58,8 +58,11 @@ locals {
       name = "tardigrade-role-epsilon-${local.test_id}"
     },
     {
-      name             = "tardigrade-role-phi-${local.test_id}"
-      instance_profile = true
+      name = "tardigrade-role-phi-${local.test_id}"
+      instance_profile = {
+        name = "tardigrade-role-phi-${local.test_id}"
+        path = null
+      }
     },
   ]
 
@@ -110,7 +113,7 @@ locals {
     description           = null
     force_detach_policies = null
     inline_policies       = []
-    instance_profile      = false
+    instance_profile      = null
     managed_policy_arns   = []
     max_session_duration  = null
     path                  = null

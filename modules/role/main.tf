@@ -32,8 +32,9 @@ resource "aws_iam_role" "this" {
 
 # attach an instance profile to the IAM role
 resource "aws_iam_instance_profile" "this" {
-  count = var.instance_profile ? 1 : 0
+  count = var.instance_profile != null ? 1 : 0
 
-  name = aws_iam_role.this.id
+  name = var.instance_profile.name
+  path = var.instance_profile.path
   role = aws_iam_role.this.id
 }

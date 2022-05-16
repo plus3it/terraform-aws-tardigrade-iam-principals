@@ -34,11 +34,14 @@ variable "roles" {
     assume_role_policy    = string
     description           = string
     force_detach_policies = bool
-    instance_profile      = bool
-    max_session_duration  = number
-    path                  = string
-    permissions_boundary  = string
-    tags                  = map(string)
+    instance_profile = object({
+      name = string
+      path = string
+    })
+    max_session_duration = number
+    path                 = string
+    permissions_boundary = string
+    tags                 = map(string)
     inline_policies = list(object({
       name   = string
       policy = string
