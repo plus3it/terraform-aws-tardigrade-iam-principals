@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### 12.0.0
 
-**Released**: 2022.05.25
+**Released**: 2022.05.16
 
 **Commit Delta**: [Change from 11.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/11.0.1...12.0.0)
 
