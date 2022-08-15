@@ -23,6 +23,7 @@ variable "policies" {
     name        = string
     path        = string
     policy      = string
+    tags        = map(string)
   }))
   default = []
 }

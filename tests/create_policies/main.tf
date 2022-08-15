@@ -6,6 +6,10 @@ module "policies" {
   name        = each.key
   path        = each.value.path
   policy      = each.value.policy
+
+  tags = {
+    Tardigrade = "test"
+  }
 }
 
 module "policy_documents" {

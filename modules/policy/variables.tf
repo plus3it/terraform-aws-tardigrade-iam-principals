@@ -19,3 +19,9 @@ variable "path" {
   type        = string
   default     = null
 }
+
+variable "tags" {
+  description = "Map of tags to apply to all resources that support tags"
+  type        = map(string)
+  default     = {}
+}

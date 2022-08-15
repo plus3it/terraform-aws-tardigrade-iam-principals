@@ -12,6 +12,7 @@ module "policies" {
 
   description = each.value.description
   path        = each.value.path
+  tags        = each.value.tags
 }
 
 module "groups" {

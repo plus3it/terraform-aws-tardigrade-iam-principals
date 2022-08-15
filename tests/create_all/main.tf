@@ -235,6 +235,9 @@ locals {
   policy_base = {
     path        = null
     description = null
+    tags = {
+      TardigradeTest = "true"
+    }
   }
 
   policy_document_base = {

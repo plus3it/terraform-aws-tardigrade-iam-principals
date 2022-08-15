@@ -26,7 +26,7 @@ make mockstack/clean
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.30.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.35.0 |
 
 ## Providers
 
@@ -41,7 +41,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_groups"></a> [groups](#input\_groups) | Schema list of IAM groups | <pre>list(object({<br>    name       = string<br>    path       = string<br>    user_names = list(string)<br>    inline_policies = list(object({<br>      name   = string<br>      policy = string<br>    }))<br>    managed_policies = list(object({<br>      name = string<br>      arn  = string<br>    }))<br>  }))</pre> | `[]` | no |
-| <a name="input_policies"></a> [policies](#input\_policies) | Schema list of policy objects | <pre>list(object({<br>    description = string<br>    name        = string<br>    path        = string<br>    policy      = string<br>  }))</pre> | `[]` | no |
+| <a name="input_policies"></a> [policies](#input\_policies) | Schema list of policy objects | <pre>list(object({<br>    description = string<br>    name        = string<br>    path        = string<br>    policy      = string<br>    tags        = map(string)<br>  }))</pre> | `[]` | no |
 | <a name="input_roles"></a> [roles](#input\_roles) | Schema list of IAM roles | <pre>list(object({<br>    name                  = string<br>    assume_role_policy    = string<br>    description           = string<br>    force_detach_policies = bool<br>    instance_profile = object({<br>      name = string<br>      path = string<br>    })<br>    max_session_duration = number<br>    path                 = string<br>    permissions_boundary = string<br>    tags                 = map(string)<br>    inline_policies = list(object({<br>      name   = string<br>      policy = string<br>    }))<br>    managed_policies = list(object({<br>      name = string<br>      arn  = string<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_users"></a> [users](#input\_users) | Schema list of IAM users | <pre>list(object({<br>    name                 = string<br>    force_destroy        = bool<br>    path                 = string<br>    permissions_boundary = string<br>    tags                 = map(string)<br>    inline_policies = list(object({<br>      name   = string<br>      policy = string<br>    }))<br>    managed_policies = list(object({<br>      name = string<br>      arn  = string<br>    }))<br>    access_keys = list(object({<br>      name    = string<br>      status  = string<br>      pgp_key = string<br>    }))<br>  }))</pre> | `[]` | no |
 
