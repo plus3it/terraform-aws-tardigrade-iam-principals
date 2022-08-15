@@ -35,7 +35,7 @@ resource "random_string" "foo" {
   length  = 6
   upper   = false
   special = false
-  number  = false
+  numeric  = false
 }
 */
 
@@ -310,7 +310,7 @@ resource "random_string" "this" {
   length  = 6
   upper   = false
   special = false
-  number  = false
+  numeric = false
 }
 
 data "aws_caller_identity" "current" {}
