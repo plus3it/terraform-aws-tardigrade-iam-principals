@@ -28,6 +28,20 @@ variable "policies" {
   default = []
 }
 
+variable "policy_documents" {
+  description = "Schema list of IAM policy documents"
+  type        = any
+  # Using `any` because template_vars may have differing element types, which generates
+  # an error when terraform converts the values to a list. However, the real type is:
+  # type = list(object({
+  #   name           = string
+  #   template       = string
+  #   template_paths = list(string)
+  #   template_vars  = any
+  # }))
+  default = []
+}
+
 variable "roles" {
   description = "Schema list of IAM roles"
   type = list(object({
