@@ -34,7 +34,7 @@ variable "inline_policies" {
   default = []
 
   validation {
-    condition     = length(concat(var.inline_policies[*].policy)) <= 2048
+    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(item.policy)]) <= 2048 : true
     error_message = "Combined length of all inline policies exceeds user limit of 2,048 characters."
   }
 }
