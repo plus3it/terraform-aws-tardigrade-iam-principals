@@ -6,6 +6,11 @@ variable "name" {
 variable "policy" {
   description = "Policy document for the IAM policy"
   type        = string
+
+  validation {
+    condition     = length(var.policy) <= 6144
+    error_message = "Length of policy exceeds limit of 6,144 characters."
+  }
 }
 
 variable "description" {

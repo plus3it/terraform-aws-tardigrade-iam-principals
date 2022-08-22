@@ -22,6 +22,11 @@ variable "inline_policies" {
     policy = string
   }))
   default = []
+
+  validation {
+    condition     = length(concat(var.inline_policies[*].policy)) <= 5120
+    error_message = "Combined length of all inline policies exceeds group limit of 5,120 characters."
+  }
 }
 
 variable "managed_policies" {
@@ -31,6 +36,11 @@ variable "managed_policies" {
     arn  = string
   }))
   default = []
+
+  validation {
+    condition     = length(var.managed_policies) <= 10
+    error_message = "Number of managed policies exceeds group limit of 10."
+  }
 }
 
 variable "path" {
