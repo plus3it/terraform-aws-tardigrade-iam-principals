@@ -1,13 +1,20 @@
 module "create_all" {
   source = "../../"
 
-  policy_documents = local.policy_documents
-
   policies = local.policies
 
   groups = local.groups
   roles  = local.roles
   users  = local.users
+}
+
+module "policy_documents" {
+  source   = "../../modules/policy_document"
+  for_each = { for policy_document in local.policy_documents : policy_document.name => merge(local.policy_document_base, policy_document) }
+
+  template       = each.value.template
+  template_paths = each.value.template_paths
+  template_vars  = each.value.template_vars
 }
 
 /*
@@ -28,7 +35,7 @@ resource "random_string" "foo" {
   length  = 6
   upper   = false
   special = false
-  numeric = false
+  numeric  = false
 }
 */
 
@@ -133,16 +140,16 @@ locals {
   policies = [for policy in [
     {
       name   = "tardigrade-alpha-${local.test_id}"
-      policy = "tardigrade-alpha-${local.test_id}"
+      policy = module.policy_documents["tardigrade-alpha-${local.test_id}"].policy_document
     },
     {
       name   = "tardigrade-beta-${local.test_id}"
       path   = "/tardigrade/"
-      policy = "tardigrade-beta-${local.test_id}"
+      policy = module.policy_documents["tardigrade-beta-${local.test_id}"].policy_document
     },
   ] : merge(local.policy_base, policy)]
 
-  policy_documents = [for document in [
+  policy_documents = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
       template = "policies/template.json"
@@ -190,16 +197,16 @@ locals {
       name     = "tardigrade-assume-role-${local.test_id}"
       template = "trusts/template.json"
     },
-  ] : merge(local.policy_document_base, document)]
+  ]
 
   inline_policies = [
     {
       name   = "tardigrade-alpha-${local.test_id}"
-      policy = "tardigrade-alpha-inline-${local.test_id}"
+      policy = module.policy_documents["tardigrade-alpha-inline-${local.test_id}"].policy_document
     },
     {
       name   = "tardigrade-beta-${local.test_id}"
-      policy = "tardigrade-beta-inline-${local.test_id}"
+      policy = module.policy_documents["tardigrade-beta-inline-${local.test_id}"].policy_document
     },
   ]
 
@@ -267,7 +274,7 @@ locals {
   }
 
   role_base = {
-    assume_role_policy    = "tardigrade-assume-role-${local.test_id}"
+    assume_role_policy    = module.policy_documents["tardigrade-assume-role-${local.test_id}"].policy_document
     description           = null
     force_detach_policies = null
     inline_policies       = []

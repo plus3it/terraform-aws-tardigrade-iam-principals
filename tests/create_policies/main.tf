@@ -6,6 +6,10 @@ module "policies" {
   name        = each.key
   path        = each.value.path
   policy      = each.value.policy
+
+  tags = {
+    Tardigrade = "test"
+  }
 }
 
 module "policy_documents" {
@@ -112,7 +116,7 @@ resource "random_string" "this" {
   length  = 6
   upper   = false
   special = false
-  number  = false
+  numeric = false
 }
 
 data "aws_caller_identity" "current" {}

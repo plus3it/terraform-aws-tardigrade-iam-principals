@@ -6,6 +6,11 @@ variable "name" {
 variable "assume_role_policy" {
   description = "Assume role policy document for the IAM role"
   type        = string
+
+  validation {
+    condition     = length(var.assume_role_policy) <= 4096
+    error_message = "Length of assume role policy exceeds limit of 4,096 characters."
+  }
 }
 
 variable "depends_on_policies" {
@@ -33,6 +38,11 @@ variable "inline_policies" {
     policy = string
   }))
   default = []
+
+  validation {
+    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(item.policy)]) <= 10240 : true
+    error_message = "Combined length of all inline policies exceeds role limit of 10,240 characters."
+  }
 }
 
 variable "instance_profile" {
@@ -48,6 +58,11 @@ variable "managed_policy_arns" {
   description = "List of IAM managed policy ARNs to attach to the role"
   type        = list(string)
   default     = []
+
+  validation {
+    condition     = length(var.managed_policy_arns) <= 20
+    error_message = "Number of managed policies exceeds role limit of 20."
+  }
 }
 
 variable "max_session_duration" {

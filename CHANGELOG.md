@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 13.0.0
+
+**Released**: 2022.08.22
+
+**Commit Delta**: [Change from 12.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/12.0.0...13.0.0)
+
+**Summary**:
+
+*   BACKWARDS INCOMPATIBLE: Adds `tags` attribute to objects in list of `policies` in top-level module
+*   Passes tags to aws_iam_policy resource
+*   Supports templating policy documents in top-level module, using `policy_documents` variable
+*   Ensures that the policy_document module cannot return an empty policy
+*   Validates size and number of policies on groups, roles, and users
+
 ### 12.0.0
 
 **Released**: 2022.05.16
@@ -12,7 +26,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 **Summary**:
 
-*   Changes instance_profile from a boolean to an object so the name and path attributes can be set independantly from the role name.  
+*   Changes instance_profile from a boolean to an object so the name and path attributes can be set independantly from the role name.
 
 
 ### 11.0.1
