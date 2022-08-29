@@ -24,7 +24,7 @@ variable "inline_policies" {
   default = []
 
   validation {
-    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(item.policy)]) <= 5120 : true
+    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(jsonencode(jsondecode(item.policy)))]) <= 5120 : true
     error_message = "Combined length of all inline policies exceeds group limit of 5,120 characters."
   }
 }

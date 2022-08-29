@@ -8,7 +8,7 @@ variable "policy" {
   type        = string
 
   validation {
-    condition     = length(var.policy) <= 6144
+    condition     = length(jsonencode(jsondecode(var.policy))) <= 6144
     error_message = "Length of policy exceeds limit of 6,144 characters."
   }
 }
