@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### 13.0.2
+
+**Released**: 2022.08.29
+
+**Commit Delta**: [Change from 13.0.1 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/13.0.1...13.0.2)
+
+**Summary**:
+
+*   Outputs policy documents at top-level, for use case where *only* policy documents
+    are templated
+
+### 13.0.1
+
+**Released**: 2022.08.29
+
+**Commit Delta**: [Change from 13.0.0 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/13.0.0...13.0.1)
+
+**Summary**:
+
+*   Minifies policy documents in validation to align with AWS API behavior
+
 ### 13.0.0
 
 **Released**: 2022.08.22
