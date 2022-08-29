@@ -40,7 +40,7 @@ variable "inline_policies" {
   default = []
 
   validation {
-    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(item.policy)]) <= 10240 : true
+    condition     = length(var.inline_policies) > 0 ? sum([for item in var.inline_policies : length(jsonencode(jsondecode(item.policy)))]) <= 10240 : true
     error_message = "Combined length of all inline policies exceeds role limit of 10,240 characters."
   }
 }
