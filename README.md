@@ -52,6 +52,7 @@ No resources.
 |------|-------------|
 | <a name="output_groups"></a> [groups](#output\_groups) | IAM group resources |
 | <a name="output_policies"></a> [policies](#output\_policies) | IAM managed policy resources |
+| <a name="output_policy_documents"></a> [policy\_documents](#output\_policy\_documents) | IAM managed policy resources |
 | <a name="output_roles"></a> [roles](#output\_roles) | IAM role resources |
 | <a name="output_users"></a> [users](#output\_users) | IAM user resources |
 
