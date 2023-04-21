@@ -7,7 +7,8 @@ module "policy_documents" {
   source   = "./modules/policy_document"
   for_each = { for document in var.policy_documents : document.name => document }
 
-  template       = each.value.template
+  template       = try(each.value.template, null)
+  templates      = try(each.value.templates, [])
   template_paths = each.value.template_paths
   template_vars  = each.value.template_vars
 }

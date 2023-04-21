@@ -28,9 +28,10 @@ Terraform module to merge policy document templates and apply template variables
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_template"></a> [template](#input\_template) | Filepath to the policy document template, relative to `template_paths` | `string` | n/a | yes |
 | <a name="input_template_paths"></a> [template\_paths](#input\_template\_paths) | List of directory paths to search for the `template` policy document. Policy statements are merged by SID in list order. If the `template` does not exist at a given template\_path, an empty policy is used as a placeholder. If the `template` does not exist at *any* template\_path, this module returns empty policy | `list(string)` | n/a | yes |
+| <a name="input_template"></a> [template](#input\_template) | Filepath to the policy document template, relative to `template_paths` | `string` | `null` | no |
 | <a name="input_template_vars"></a> [template\_vars](#input\_template\_vars) | Map of template vars to apply to the policy document | `any` | `{}` | no |
+| <a name="input_templates"></a> [templates](#input\_templates) | List of filepaths to the policy document templates, relative to `template_paths` | `list(string)` | `[]` | no |
 
 ## Outputs
 

@@ -1,17 +1,19 @@
 locals {
   empty = data.aws_iam_policy_document.empty.json
 
+  templates = var.template != null ? [var.template] : var.templates
   # first check the template paths for the template. if found, apply the template
   # vars. if the template does not exist at that path, use an empty policy document
   # instead.
-  policy_documents = [
-    for path in var.template_paths : fileexists("${path}/${var.template}") ? (
-      templatefile(
-        "${path}/${var.template}",
+  policy_documents = flatten([
+    for template in local.templates : [
+      for path in var.template_paths : templatefile(
+        "${path}/${template}",
         var.template_vars
       )
-    ) : local.empty
-  ]
+      if fileexists("${path}/${template}")
+    ]
+  ])
 }
 
 data "aws_iam_policy_document" "empty" {}
