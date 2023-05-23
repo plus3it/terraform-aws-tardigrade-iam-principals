@@ -28,6 +28,13 @@ resource "aws_iam_role" "this" {
   depends_on = [
     var.depends_on_policies
   ]
+
+  lifecycle {
+    precondition {
+      condition     = length(var.managed_policies) + length(var.managed_policy_arns) <= 20
+      error_message = "The combination of `managed_policy_arns` and `managed_policies` exceeds role limit of 20 total policies."
+    }
+  }
 }
 
 # attach an instance profile to the IAM role
