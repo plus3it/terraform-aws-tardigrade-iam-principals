@@ -6,9 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### [13.1.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.1.0)
 
-**Released**: 2023.05.123
-
-**Commit Delta**: [Change from 13.0.2 release](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/compare/13.0.1...13.0.2)
+**Released**: 2023.05.23
 
 **Summary**:
 
