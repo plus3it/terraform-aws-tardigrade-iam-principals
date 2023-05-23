@@ -5,7 +5,7 @@ resource "aws_iam_role" "this" {
 
   description           = var.description
   force_detach_policies = var.force_detach_policies
-  managed_policy_arns   = var.managed_policy_arns
+  managed_policy_arns   = concat([for name, policy in data.aws_iam_policy.this : policy.arn], var.managed_policy_arns)
   max_session_duration  = var.max_session_duration
   path                  = var.path
   permissions_boundary  = var.permissions_boundary
@@ -37,4 +37,14 @@ resource "aws_iam_instance_profile" "this" {
   name = var.instance_profile.name
   path = var.instance_profile.path
   role = aws_iam_role.this.id
+}
+
+data "aws_iam_policy" "this" {
+  for_each = { for policy in var.managed_policies : policy.name => policy }
+
+  arn = each.value.arn
+
+  depends_on = [
+    var.depends_on_policies
+  ]
 }
