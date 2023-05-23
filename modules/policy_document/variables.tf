@@ -1,6 +1,14 @@
 variable "template" {
   description = "Filepath to the policy document template, relative to `template_paths`"
   type        = string
+  default     = null
+}
+
+variable "templates" {
+  description = "List of filepaths to the policy document templates, relative to `template_paths`"
+  type        = list(string)
+  default     = []
+
 }
 
 variable "template_paths" {

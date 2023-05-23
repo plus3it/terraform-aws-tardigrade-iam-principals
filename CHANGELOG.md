@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [13.1.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.1.0)
+
+**Released**: 2023.05.23
+
+**Summary**:
+
+*   Add variable templates to support multiple policy document templates
+*   Revised test directory to have backwards compatibable tests, and new tests to support functionality
+
 ### 13.0.2
 
 **Released**: 2022.08.29
