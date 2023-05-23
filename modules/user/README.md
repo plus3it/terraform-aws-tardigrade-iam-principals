@@ -21,6 +21,7 @@ Terraform module to create IAM users
 
 | Name | Type |
 |------|------|
+| [aws_iam_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 
 ## Inputs
 

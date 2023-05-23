@@ -54,6 +54,20 @@ variable "instance_profile" {
   default = null
 }
 
+variable "managed_policies" {
+  description = "Schema list of IAM managed policies to attach to the role, including the policy `name` and `arn`"
+  type = list(object({
+    name = string
+    arn  = string
+  }))
+  default = []
+
+  validation {
+    condition     = length(var.managed_policies) <= 20
+    error_message = "Number of managed policies exceeds role limit of 20."
+  }
+}
+
 variable "managed_policy_arns" {
   description = "List of IAM managed policy ARNs to attach to the role"
   type        = list(string)

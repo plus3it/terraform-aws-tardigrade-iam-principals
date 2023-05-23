@@ -71,7 +71,7 @@ module "roles" {
   description           = each.value.description
   force_detach_policies = each.value.force_detach_policies
   instance_profile      = each.value.instance_profile
-  managed_policy_arns   = each.value.managed_policies[*].arn
+  managed_policies      = each.value.managed_policies
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
   permissions_boundary  = each.value.permissions_boundary
