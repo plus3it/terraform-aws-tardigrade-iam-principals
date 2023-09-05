@@ -8,7 +8,7 @@ variable "assume_role_policy" {
   type        = string
 
   validation {
-    condition     = length(var.assume_role_policy) <= 4096
+    condition     = length(jsonencode(jsondecode(var.assume_role_policy))) <= 4096
     error_message = "Length of assume role policy exceeds limit of 4,096 characters."
   }
 }
