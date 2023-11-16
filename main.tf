@@ -37,7 +37,6 @@ module "groups" {
 
   name = each.key
 
-  managed_policies = each.value.managed_policies
   path             = each.value.path
   user_names       = each.value.user_names
 
@@ -48,6 +47,16 @@ module "groups" {
     policy = try(
       module.policy_documents[policy.policy].policy_document,
       policy.policy
+    )
+  }]
+
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
     )
   }]
 
@@ -71,7 +80,6 @@ module "roles" {
   description           = each.value.description
   force_detach_policies = each.value.force_detach_policies
   instance_profile      = each.value.instance_profile
-  managed_policies      = each.value.managed_policies
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
   permissions_boundary  = each.value.permissions_boundary
@@ -87,6 +95,16 @@ module "roles" {
     )
   }]
 
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
+    )
+  }]
+
   depends_on_policies = local.depends_on_policies
 }
 
@@ -98,7 +116,6 @@ module "users" {
 
   access_keys          = each.value.access_keys
   force_destroy        = each.value.force_destroy
-  managed_policies     = each.value.managed_policies
   path                 = each.value.path
   permissions_boundary = each.value.permissions_boundary
   tags                 = each.value.tags
@@ -110,6 +127,16 @@ module "users" {
     policy = try(
       module.policy_documents[policy.policy].policy_document,
       policy.policy
+    )
+  }]
+
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
     )
   }]
 

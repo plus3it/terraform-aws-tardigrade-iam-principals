@@ -10,7 +10,7 @@ variable "groups" {
     }))
     managed_policies = list(object({
       name = string
-      arn  = string
+      arn  = optional(string)
     }))
   }))
   default = []
@@ -63,7 +63,7 @@ variable "roles" {
     }))
     managed_policies = list(object({
       name = string
-      arn  = string
+      arn  = optional(string)
     }))
   }))
   default = []
@@ -83,7 +83,7 @@ variable "users" {
     }))
     managed_policies = list(object({
       name = string
-      arn  = string
+      arn  = optional(string)
     }))
     access_keys = list(object({
       name    = string
