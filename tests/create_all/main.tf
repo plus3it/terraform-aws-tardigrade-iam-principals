@@ -206,11 +206,9 @@ locals {
   managed_policies = [
     {
       name = "tardigrade-alpha-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
     },
     {
       name = "tardigrade-beta-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
     },
   ]
 
@@ -275,7 +273,7 @@ locals {
     managed_policies      = []
     max_session_duration  = null
     path                  = null
-    permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    permissions_boundary  = "tardigrade-alpha-${local.test_id}"
     tags                  = {}
   }
 
@@ -285,7 +283,7 @@ locals {
     managed_policies     = []
     force_destroy        = null
     path                 = null
-    permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    permissions_boundary = "tardigrade-alpha-${local.test_id}"
     tags                 = {}
   }
 }

@@ -10,10 +10,6 @@ resource "aws_iam_group_policy_attachment" "this" {
 
   group      = aws_iam_group.this.id
   policy_arn = each.value.arn
-
-  depends_on = [
-    var.depends_on_policies
-  ]
 }
 
 # create inline policies for the IAM groups

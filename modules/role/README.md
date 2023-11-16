@@ -29,7 +29,6 @@ Terraform module to create IAM roles
 |------|-------------|------|---------|:--------:|
 | <a name="input_assume_role_policy"></a> [assume\_role\_policy](#input\_assume\_role\_policy) | Assume role policy document for the IAM role | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name of the IAM role | `string` | n/a | yes |
-| <a name="input_depends_on_policies"></a> [depends\_on\_policies](#input\_depends\_on\_policies) | List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for\_each limitations | `list(string)` | `[]` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of the IAM role | `string` | `null` | no |
 | <a name="input_force_detach_policies"></a> [force\_detach\_policies](#input\_force\_detach\_policies) | Boolean to control whether to force detach any policies the role has before destroying it | `bool` | `null` | no |
 | <a name="input_inline_policies"></a> [inline\_policies](#input\_inline\_policies) | Schema list of IAM Role inline policies, including `name` and `policy` | <pre>list(object({<br>    name   = string<br>    policy = string<br>  }))</pre> | `[]` | no |

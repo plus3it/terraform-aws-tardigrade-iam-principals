@@ -1,6 +1,5 @@
 locals {
-  depends_on_policies = [for object in module.policies : object.policy.arn]
-  depends_on_users    = [for object in module.users : object.user.arn]
+  depends_on_users = [for object in module.users : object.user.arn]
 }
 
 module "policy_documents" {
@@ -37,9 +36,8 @@ module "groups" {
 
   name = each.key
 
-  managed_policies = each.value.managed_policies
-  path             = each.value.path
-  user_names       = each.value.user_names
+  path       = each.value.path
+  user_names = each.value.user_names
 
   inline_policies = [for policy in each.value.inline_policies : {
     name = policy.name
@@ -51,8 +49,17 @@ module "groups" {
     )
   }]
 
-  depends_on_policies = local.depends_on_policies
-  depends_on_users    = local.depends_on_users
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
+    )
+  }]
+
+  depends_on_users = local.depends_on_users
 }
 
 module "roles" {
@@ -71,10 +78,8 @@ module "roles" {
   description           = each.value.description
   force_detach_policies = each.value.force_detach_policies
   instance_profile      = each.value.instance_profile
-  managed_policies      = each.value.managed_policies
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
-  permissions_boundary  = each.value.permissions_boundary
   tags                  = each.value.tags
 
   inline_policies = [for policy in each.value.inline_policies : {
@@ -87,7 +92,22 @@ module "roles" {
     )
   }]
 
-  depends_on_policies = local.depends_on_policies
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
+    )
+  }]
+
+  # First, try to get the permissions boundary arn from the policies module
+  # Second, just use the permissions boundary attribute directly
+  permissions_boundary = try(
+    module.policies[each.value.permissions_boundary].policy.arn,
+    each.value.permissions_boundary
+  )
 }
 
 module "users" {
@@ -96,12 +116,10 @@ module "users" {
 
   name = each.key
 
-  access_keys          = each.value.access_keys
-  force_destroy        = each.value.force_destroy
-  managed_policies     = each.value.managed_policies
-  path                 = each.value.path
-  permissions_boundary = each.value.permissions_boundary
-  tags                 = each.value.tags
+  access_keys   = each.value.access_keys
+  force_destroy = each.value.force_destroy
+  path          = each.value.path
+  tags          = each.value.tags
 
   inline_policies = [for policy in each.value.inline_policies : {
     name = policy.name
@@ -113,5 +131,20 @@ module "users" {
     )
   }]
 
-  depends_on_policies = local.depends_on_policies
+  managed_policies = [for policy in each.value.managed_policies : {
+    name = policy.name
+    # First, try to get the managed policy arn from the policies module
+    # Second, just use the arn attribute directly
+    arn = try(
+      module.policies[policy.name].policy.arn,
+      policy.arn
+    )
+  }]
+
+  # First, try to get the permissions boundary arn from the policies module
+  # Second, just use the permissions boundary attribute directly
+  permissions_boundary = try(
+    module.policies[each.value.permissions_boundary].policy.arn,
+    each.value.permissions_boundary
+  )
 }

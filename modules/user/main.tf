@@ -11,10 +11,6 @@ resource "aws_iam_user" "this" {
     },
     var.tags,
   )
-
-  depends_on = [
-    var.depends_on_policies
-  ]
 }
 
 # attach managed policies to the IAM users
@@ -23,10 +19,6 @@ resource "aws_iam_user_policy_attachment" "this" {
 
   policy_arn = each.value.arn
   user       = aws_iam_user.this.id
-
-  depends_on = [
-    var.depends_on_policies
-  ]
 }
 
 # create inline policies for the IAM users
@@ -51,8 +43,4 @@ data "aws_iam_policy" "this" {
   for_each = { for policy in var.managed_policies : policy.name => policy }
 
   arn = each.value.arn
-
-  depends_on = [
-    var.depends_on_policies
-  ]
 }
