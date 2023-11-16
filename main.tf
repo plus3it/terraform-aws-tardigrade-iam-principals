@@ -80,7 +80,6 @@ module "roles" {
   instance_profile      = each.value.instance_profile
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
-  permissions_boundary  = each.value.permissions_boundary
   tags                  = each.value.tags
 
   inline_policies = [for policy in each.value.inline_policies : {
@@ -102,6 +101,13 @@ module "roles" {
       policy.arn
     )
   }]
+
+  # First, try to get the permissions boundary arn from the policies module
+  # Second, just use the permissions boundary attribute directly
+  permissions_boundary = try(
+    module.policies[each.value.permissions_boundary].policy.arn,
+    each.value.permissions_boundary
+  )
 }
 
 module "users" {
@@ -110,11 +116,10 @@ module "users" {
 
   name = each.key
 
-  access_keys          = each.value.access_keys
-  force_destroy        = each.value.force_destroy
-  path                 = each.value.path
-  permissions_boundary = each.value.permissions_boundary
-  tags                 = each.value.tags
+  access_keys   = each.value.access_keys
+  force_destroy = each.value.force_destroy
+  path          = each.value.path
+  tags          = each.value.tags
 
   inline_policies = [for policy in each.value.inline_policies : {
     name = policy.name
@@ -135,4 +140,11 @@ module "users" {
       policy.arn
     )
   }]
+
+  # First, try to get the permissions boundary arn from the policies module
+  # Second, just use the permissions boundary attribute directly
+  permissions_boundary = try(
+    module.policies[each.value.permissions_boundary].policy.arn,
+    each.value.permissions_boundary
+  )
 }
