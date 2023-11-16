@@ -206,11 +206,9 @@ locals {
   managed_policies = [
     {
       name = "tardigrade-alpha-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
     },
     {
       name = "tardigrade-beta-${local.test_id}"
-      arn  = "${local.policy_arn_base}/tardigrade/tardigrade-beta-${local.test_id}"
     },
   ]
 
