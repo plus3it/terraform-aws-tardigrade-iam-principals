@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [13.2.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.2.0)
+
+**Released**: 2023.11.16
+
+**Summary**:
+
+*   Uses managed policy name to lookup arn from policies module
+*   Makes managed policy arn an optional attribute of the policy object
+*   Uses permission boundary name to lookup arn from policies module
+
 ### [13.1.2](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.1.2)
 
 **Released**: 2023.09.05
