@@ -13,12 +13,6 @@ variable "assume_role_policy" {
   }
 }
 
-variable "depends_on_policies" {
-  description = "List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for_each limitations"
-  type        = list(string)
-  default     = []
-}
-
 variable "description" {
   description = "Description of the IAM role"
   type        = string

@@ -3,12 +3,6 @@ variable "name" {
   type        = string
 }
 
-variable "depends_on_policies" {
-  description = "List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for_each limitations"
-  type        = list(string)
-  default     = []
-}
-
 variable "depends_on_users" {
   description = "List of users created in the same tfstate. Used to manage resource cycles on user membership and work around for_each limitations"
   type        = list(string)

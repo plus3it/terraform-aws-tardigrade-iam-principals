@@ -25,10 +25,6 @@ resource "aws_iam_role" "this" {
     var.tags,
   )
 
-  depends_on = [
-    var.depends_on_policies
-  ]
-
   lifecycle {
     precondition {
       condition     = length(var.managed_policies) + length(var.managed_policy_arns) <= 20
@@ -50,8 +46,4 @@ data "aws_iam_policy" "this" {
   for_each = { for policy in var.managed_policies : policy.name => policy }
 
   arn = each.value.arn
-
-  depends_on = [
-    var.depends_on_policies
-  ]
 }

@@ -1,6 +1,5 @@
 locals {
-  depends_on_policies = [for object in module.policies : object.policy.arn]
-  depends_on_users    = [for object in module.users : object.user.arn]
+  depends_on_users = [for object in module.users : object.user.arn]
 }
 
 module "policy_documents" {
@@ -37,8 +36,8 @@ module "groups" {
 
   name = each.key
 
-  path             = each.value.path
-  user_names       = each.value.user_names
+  path       = each.value.path
+  user_names = each.value.user_names
 
   inline_policies = [for policy in each.value.inline_policies : {
     name = policy.name
@@ -60,8 +59,7 @@ module "groups" {
     )
   }]
 
-  depends_on_policies = local.depends_on_policies
-  depends_on_users    = local.depends_on_users
+  depends_on_users = local.depends_on_users
 }
 
 module "roles" {
@@ -104,8 +102,6 @@ module "roles" {
       policy.arn
     )
   }]
-
-  depends_on_policies = local.depends_on_policies
 }
 
 module "users" {
@@ -139,6 +135,4 @@ module "users" {
       policy.arn
     )
   }]
-
-  depends_on_policies = local.depends_on_policies
 }

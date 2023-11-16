@@ -27,7 +27,6 @@ Terraform module to create IAM groups
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_name"></a> [name](#input\_name) | Name of the IAM group | `string` | n/a | yes |
-| <a name="input_depends_on_policies"></a> [depends\_on\_policies](#input\_depends\_on\_policies) | List of policies created in the same tfstate. Used to manage resource cycles on policy attachments and work around for\_each limitations | `list(string)` | `[]` | no |
 | <a name="input_depends_on_users"></a> [depends\_on\_users](#input\_depends\_on\_users) | List of users created in the same tfstate. Used to manage resource cycles on user membership and work around for\_each limitations | `list(string)` | `[]` | no |
 | <a name="input_inline_policies"></a> [inline\_policies](#input\_inline\_policies) | Schema list of IAM Group inline policies, including `name` and `policy` | <pre>list(object({<br>    name   = string<br>    policy = string<br>  }))</pre> | `[]` | no |
 | <a name="input_managed_policies"></a> [managed\_policies](#input\_managed\_policies) | Schema list of IAM managed policies to attach to the group, including the policy `name` and `arn` | <pre>list(object({<br>    name = string<br>    arn  = string<br>  }))</pre> | `[]` | no |
