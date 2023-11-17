@@ -23,12 +23,11 @@ resource "aws_iam_group_policy" "this" {
 
 # manage group memberships
 resource "aws_iam_user_group_membership" "this" {
-  for_each = toset(var.user_names)
+  for_each = { for user_name in var.user_names : user_name => try(
+    var.depends_on_users[index(var.depends_on_users, user_name)],
+    user_name
+  ) }
 
   groups = [aws_iam_group.this.id]
-  user   = each.key
-
-  depends_on = [
-    var.depends_on_users
-  ]
+  user   = each.value
 }

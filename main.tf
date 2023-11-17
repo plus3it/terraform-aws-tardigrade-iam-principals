@@ -1,5 +1,5 @@
 locals {
-  depends_on_users = [for object in module.users : object.user.arn]
+  depends_on_users = [for object in module.users : object.user.name]
 }
 
 module "policy_documents" {

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [13.2.1](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.2.1)
+
+**Released**: 2023.11.17
+
+**Summary**:
+
+*   Uses attribute reference for user group membership to eliminate `depends_on`
+    usage in `groups` module
+
 ### [13.2.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.2.0)
 
 **Released**: 2023.11.16
