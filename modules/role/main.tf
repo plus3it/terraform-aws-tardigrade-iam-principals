@@ -10,14 +10,6 @@ resource "aws_iam_role" "this" {
   path                  = var.path
   permissions_boundary  = var.permissions_boundary
 
-  dynamic "inline_policy" {
-    for_each = var.inline_policies
-    content {
-      name   = inline_policy.value.name
-      policy = inline_policy.value.policy
-    }
-  }
-
   tags = merge(
     {
       Name = var.name
@@ -31,6 +23,19 @@ resource "aws_iam_role" "this" {
       error_message = "The combination of `managed_policy_arns` and `managed_policies` exceeds role limit of 20 total policies."
     }
   }
+}
+
+resource "aws_iam_role_policy" "this" {
+  for_each = { for policy in var.inline_policies : policy.name => policy }
+
+  name   = each.value.name
+  policy = each.value.policy
+  role   = aws_iam_role.this.name
+}
+
+resource "aws_iam_role_policies_exclusive" "this" {
+  role_name    = aws_iam_role.this.name
+  policy_names = [for name, policy in aws_iam_role_policy.this : policy.name]
 }
 
 # attach an instance profile to the IAM role
