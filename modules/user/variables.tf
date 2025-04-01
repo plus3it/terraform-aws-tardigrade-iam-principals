@@ -7,8 +7,8 @@ variable "access_keys" {
   description = "Schema list of IAM access key attributes, including the access key `name`, `status`, and `pgp_key`"
   type = list(object({
     name    = string
-    status  = string
-    pgp_key = string
+    status  = optional(string)
+    pgp_key = optional(string)
   }))
   default = []
 }

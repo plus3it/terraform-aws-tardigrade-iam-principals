@@ -43,7 +43,7 @@ variable "instance_profile" {
   description = "Schema object of a role's instance profile"
   type = object({
     name = string
-    path = string
+    path = optional(string)
   })
   default = null
 }
