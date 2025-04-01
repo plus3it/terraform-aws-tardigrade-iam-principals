@@ -53,7 +53,6 @@ locals {
   ]
 
   policy_base = {
-    path          = null
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/",

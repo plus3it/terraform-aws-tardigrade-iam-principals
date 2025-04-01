@@ -40,7 +40,7 @@ resource "random_string" "foo" {
 */
 
 locals {
-  groups = [for group in [
+  groups = [
     {
       name             = "tardigrade-group-alpha-${local.test_id}"
       inline_policies  = local.inline_policies
@@ -65,7 +65,7 @@ locals {
     {
       name = "tardigrade-group-epsilon-${local.test_id}"
     },
-  ] : merge(local.group_base, group)]
+  ]
 
   roles = [for role in [
     {
@@ -221,20 +221,18 @@ locals {
     },
   ]
 
-  access_keys = [for access_key in [
+  access_keys = [
     {
       name = "tardigrade-alpha-${local.test_id}"
     },
     {
       name = "tardigrade-beta-${local.test_id}"
     },
-  ] : merge(local.access_key_base, access_key)]
+  ]
 
   policy_arn_base = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy"
 
   policy_base = {
-    path        = null
-    description = null
     tags = {
       TardigradeTest = "true"
     }
@@ -261,39 +259,13 @@ locals {
     )
   }
 
-  access_key_base = {
-    pgp_key = null
-    status  = null
-  }
-
-  group_base = {
-    inline_policies  = []
-    managed_policies = []
-    path             = null
-    user_names       = []
-  }
-
   role_base = {
     assume_role_policy    = module.policy_documents["tardigrade-assume-role-${local.test_id}"].policy_document
-    description           = null
-    force_detach_policies = null
-    inline_policies       = []
-    instance_profile      = null
-    managed_policies      = []
-    max_session_duration  = null
-    path                  = null
     permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                  = {}
   }
 
   user_base = {
-    access_keys          = []
-    inline_policies      = []
-    managed_policies     = []
-    force_destroy        = null
-    path                 = null
     permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                 = {}
   }
 }
 
