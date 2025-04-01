@@ -101,33 +101,30 @@ locals {
   policy_documents = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
-          instance_arns = join(
-            "\",\"",
-            [
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
-              # Do not remove! Used to detect resource cycles, see comments above.
-              # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
-            ]
-          )
+          instance_arns = [
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+            # Do not remove! Used to detect resource cycles, see comments above.
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+          ]
         }
       )
     },
     {
       name     = "tardigrade-alpha-inline-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-inline-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
   ]
 
@@ -165,12 +162,9 @@ locals {
     partition     = data.aws_partition.current.partition
     region        = data.aws_region.current.name
     random_string = random_string.this.result
-    instance_arns = join(
-      "\",\"",
-      [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-      ]
-    )
+    instance_arns = [
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+    ]
   }
 
   user_base = {

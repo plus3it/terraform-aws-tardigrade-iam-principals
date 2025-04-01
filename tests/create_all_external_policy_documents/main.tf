@@ -152,29 +152,26 @@ locals {
   policy_documents = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
-          instance_arns = join(
-            "\",\"",
-            [
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-              # Do not remove! Used to detect resource cycles, see comments above.
-              # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-            ]
-          )
+          instance_arns = [
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+            # Do not remove! Used to detect resource cycles, see comments above.
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+          ]
         }
       )
     },
     {
       name     = "tardigrade-alpha-inline-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-inline-${local.test_id}"
@@ -251,17 +248,14 @@ locals {
     partition     = local.partition
     region        = local.region
     random_string = local.random_string
-    instance_arns = join(
-      "\",\"",
-      [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-      ]
-    )
+    instance_arns = [
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+    ]
   }
 
   role_base = {
-    assume_role_policy    = module.policy_documents["tardigrade-assume-role-${local.test_id}"].policy_document
-    permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
+    assume_role_policy   = module.policy_documents["tardigrade-assume-role-${local.test_id}"].policy_document
+    permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
   }
 
   user_base = {

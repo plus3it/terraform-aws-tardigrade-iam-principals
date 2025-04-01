@@ -33,11 +33,11 @@ locals {
   policy_documents = [
     {
       name     = "tardigrade-alpha-create-roles-test"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-create-roles-test"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
   ]
 

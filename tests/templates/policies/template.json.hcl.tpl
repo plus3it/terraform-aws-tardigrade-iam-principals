@@ -1,4 +1,4 @@
-{
+${jsonencode({
     "Statement": [
         {
             "Action": [
@@ -18,4 +18,4 @@
         }
     ],
     "Version": "2012-10-17"
-}
+})}
