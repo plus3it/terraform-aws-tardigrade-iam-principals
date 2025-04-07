@@ -1,4 +1,4 @@
-module "create_all" {
+module "create_all_templates" {
   source = "../../"
 
   policy_documents = local.policy_documents
@@ -33,7 +33,7 @@ resource "random_string" "foo" {
 */
 
 locals {
-  groups = [for group in [
+  groups = [
     {
       name             = "tardigrade-group-alpha-${local.test_id}"
       inline_policies  = local.inline_policies
@@ -58,7 +58,7 @@ locals {
     {
       name = "tardigrade-group-epsilon-${local.test_id}"
     },
-  ] : merge(local.group_base, group)]
+  ]
 
   roles = [for role in [
     {
@@ -145,29 +145,26 @@ locals {
   policy_documents = [for document in [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
-          instance_arns = join(
-            "\",\"",
-            [
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-              # Do not remove! Used to detect resource cycles, see comments above.
-              # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-            ]
-          )
+          instance_arns = [
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+            # Do not remove! Used to detect resource cycles, see comments above.
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+          ]
         }
       )
     },
     {
       name     = "tardigrade-alpha-inline-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-beta-inline-${local.test_id}"
@@ -192,23 +189,20 @@ locals {
     },
     {
       name      = "tardigrade-chi-${local.test_id}"
-      templates = ["policies/template.json", "policies/template_2.json"]
+      templates = ["policies/template.json.hcl.tpl", "policies/template_2.json"]
     },
     {
       name      = "tardigrade-delta-${local.test_id}"
-      templates = ["policies/template.json", "policies/template_2.json"]
+      templates = ["policies/template.json.hcl.tpl", "policies/template_2.json"]
       template_vars = merge(
         local.template_vars_base,
         {
-          instance_arns = join(
-            "\",\"",
-            [
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-              "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-              # Do not remove! Used to detect resource cycles, see comments above.
-              # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
-            ]
-          )
+          instance_arns = [
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+            # Do not remove! Used to detect resource cycles, see comments above.
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${local.random_string}",
+          ]
         }
       )
     },
@@ -236,20 +230,18 @@ locals {
     },
   ]
 
-  access_keys = [for access_key in [
+  access_keys = [
     {
       name = "tardigrade-alpha-${local.test_id}"
     },
     {
       name = "tardigrade-beta-${local.test_id}"
     },
-  ] : merge(local.access_key_base, access_key)]
+  ]
 
   policy_arn_base = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy"
 
   policy_base = {
-    path        = null
-    description = null
     tags = {
       TardigradeTest = "true"
     }
@@ -268,47 +260,18 @@ locals {
     partition     = local.partition
     region        = local.region
     random_string = local.random_string
-    instance_arns = join(
-      "\",\"",
-      [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-      ]
-    )
-  }
-
-  access_key_base = {
-    pgp_key = null
-    status  = null
-  }
-
-  group_base = {
-    inline_policies  = []
-    managed_policies = []
-    path             = null
-    user_names       = []
+    instance_arns = [
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+    ]
   }
 
   role_base = {
-    assume_role_policy    = "tardigrade-assume-role-${local.test_id}"
-    description           = null
-    force_detach_policies = null
-    inline_policies       = []
-    instance_profile      = null
-    managed_policies      = []
-    max_session_duration  = null
-    path                  = null
-    permissions_boundary  = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                  = {}
+    assume_role_policy   = "tardigrade-assume-role-${local.test_id}"
+    permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
   }
 
   user_base = {
-    access_keys          = []
-    inline_policies      = []
-    managed_policies     = []
-    force_destroy        = null
-    path                 = null
     permissions_boundary = "${local.policy_arn_base}/tardigrade-alpha-${local.test_id}"
-    tags                 = {}
   }
 }
 
@@ -341,7 +304,7 @@ data "terraform_remote_state" "prereq" {
   }
 }
 
-output "create_all" {
-  value     = module.create_all
+output "create_all_templates" {
+  value     = module.create_all_templates
   sensitive = true
 }

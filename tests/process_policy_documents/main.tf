@@ -11,7 +11,7 @@ locals {
   policies = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
@@ -21,7 +21,7 @@ locals {
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-charlie-${local.test_id}"
@@ -42,7 +42,7 @@ locals {
     },
     {
       name     = "tardigrade-delta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_paths = concat(
         local.policy_base.template_paths,
         [
@@ -53,7 +53,6 @@ locals {
   ]
 
   policy_base = {
-    path          = null
     template_vars = local.template_vars_base
     template_paths = [
       "${path.module}/../templates/",

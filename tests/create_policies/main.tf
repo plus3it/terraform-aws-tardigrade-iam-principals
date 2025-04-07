@@ -48,7 +48,7 @@ locals {
   policy_documents = [
     {
       name     = "tardigrade-alpha-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
       template_vars = merge(
         local.template_vars_base,
         {
@@ -58,11 +58,11 @@ locals {
     },
     {
       name     = "tardigrade-beta-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-chi-${local.test_id}"
-      template = "policies/template.json"
+      template = "policies/template.json.hcl.tpl"
     },
     {
       name     = "tardigrade-delta-${local.test_id}"

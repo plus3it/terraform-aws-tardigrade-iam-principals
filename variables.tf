@@ -2,16 +2,16 @@ variable "groups" {
   description = "Schema list of IAM groups"
   type = list(object({
     name       = string
-    path       = string
-    user_names = list(string)
-    inline_policies = list(object({
+    path       = optional(string)
+    user_names = optional(list(string), [])
+    inline_policies = optional(list(object({
       name   = string
       policy = string
-    }))
-    managed_policies = list(object({
+    })), [])
+    managed_policies = optional(list(object({
       name = string
       arn  = optional(string)
-    }))
+    })), [])
   }))
   default = []
 }
@@ -19,11 +19,11 @@ variable "groups" {
 variable "policies" {
   description = "Schema list of policy objects"
   type = list(object({
-    description = string
     name        = string
-    path        = string
     policy      = string
-    tags        = map(string)
+    description = optional(string)
+    path        = optional(string)
+    tags        = optional(map(string))
   }))
   default = []
 }
@@ -47,24 +47,24 @@ variable "roles" {
   type = list(object({
     name                  = string
     assume_role_policy    = string
-    description           = string
-    force_detach_policies = bool
-    instance_profile = object({
+    description           = optional(string)
+    force_detach_policies = optional(bool)
+    instance_profile = optional(object({
       name = string
-      path = string
-    })
-    max_session_duration = number
-    path                 = string
-    permissions_boundary = string
-    tags                 = map(string)
-    inline_policies = list(object({
+      path = optional(string)
+    }))
+    max_session_duration = optional(number)
+    path                 = optional(string)
+    permissions_boundary = optional(string)
+    tags                 = optional(map(string))
+    inline_policies = optional(list(object({
       name   = string
       policy = string
-    }))
-    managed_policies = list(object({
+    })), [])
+    managed_policies = optional(list(object({
       name = string
       arn  = optional(string)
-    }))
+    })), [])
   }))
   default = []
 }
@@ -73,23 +73,23 @@ variable "users" {
   description = "Schema list of IAM users"
   type = list(object({
     name                 = string
-    force_destroy        = bool
-    path                 = string
-    permissions_boundary = string
-    tags                 = map(string)
-    inline_policies = list(object({
+    force_destroy        = optional(bool)
+    path                 = optional(string)
+    permissions_boundary = optional(string)
+    tags                 = optional(map(string))
+    inline_policies = optional(list(object({
       name   = string
       policy = string
-    }))
-    managed_policies = list(object({
+    })), [])
+    managed_policies = optional(list(object({
       name = string
       arn  = optional(string)
-    }))
-    access_keys = list(object({
+    })), [])
+    access_keys = optional(list(object({
       name    = string
-      status  = string
-      pgp_key = string
-    }))
+      status  = optional(string)
+      pgp_key = optional(string)
+    })), [])
   }))
   default = []
 }
