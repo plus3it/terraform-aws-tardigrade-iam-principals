@@ -21,6 +21,11 @@ resource "aws_iam_user_policy_attachment" "this" {
   user       = aws_iam_user.this.id
 }
 
+resource "aws_iam_user_policy_attachments_exclusive" "this" {
+  user_name   = aws_iam_user.this.name
+  policy_arns = [for name, policy in aws_iam_user_policy_attachment.this : policy.policy_arn]
+}
+
 # create inline policies for the IAM users
 resource "aws_iam_user_policy" "this" {
   for_each = { for policy in var.inline_policies : policy.name => policy }
@@ -28,6 +33,11 @@ resource "aws_iam_user_policy" "this" {
   name   = each.key
   user   = aws_iam_user.this.id
   policy = each.value.policy
+}
+
+resource "aws_iam_user_policies_exclusive" "this" {
+  user_name    = aws_iam_user.this.name
+  policy_names = [for name, policy in aws_iam_user_policy.this : policy.name]
 }
 
 # create access keys for the IAM users
