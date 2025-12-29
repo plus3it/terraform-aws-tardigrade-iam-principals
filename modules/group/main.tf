@@ -13,7 +13,7 @@ resource "aws_iam_group_policy_attachment" "this" {
 }
 
 resource "aws_iam_group_policy_attachments_exclusive" "this" {
-  group_name   = aws_iam_group.this.name
+  group_name  = aws_iam_group.this.name
   policy_arns = [for name, policy in aws_iam_group_policy_attachment.this : policy.policy_arn]
 }
 
@@ -27,7 +27,7 @@ resource "aws_iam_group_policy" "this" {
 }
 
 resource "aws_iam_group_policies_exclusive" "this" {
-  group_name    = aws_iam_group.this.name
+  group_name   = aws_iam_group.this.name
   policy_names = [for name, policy in aws_iam_group_policy.this : policy.name]
 }
 

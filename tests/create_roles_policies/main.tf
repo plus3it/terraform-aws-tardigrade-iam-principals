@@ -123,10 +123,10 @@ locals {
         local.template_vars_base,
         {
           instance_arns = [
-            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
             # Do not remove! Used to detect resource cycles, see comments above.
-            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
           ]
         }
       )
@@ -177,10 +177,10 @@ locals {
   template_vars_base = {
     account_id    = data.aws_caller_identity.current.account_id
     partition     = data.aws_partition.current.partition
-    region        = data.aws_region.current.name
+    region        = data.aws_region.current.region
     random_string = random_string.this.result
     instance_arns = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/*",
     ]
   }
 
