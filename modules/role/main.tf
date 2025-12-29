@@ -15,13 +15,6 @@ resource "aws_iam_role" "this" {
     },
     var.tags,
   )
-
-  lifecycle {
-    precondition {
-      condition     = length(var.managed_policies) + length(var.managed_policy_arns) <= 20
-      error_message = "The combination of `managed_policy_arns` and `managed_policies` exceeds role limit of 20 total policies."
-    }
-  }
 }
 
 # attach inline policies to the IAM role
@@ -39,16 +32,16 @@ resource "aws_iam_role_policies_exclusive" "this" {
 }
 
 # attach managed policies to the IAM role
-resource "aws_iam_role_policy_attachment" this {
-    for_each = data.aws_iam_policy.this
+resource "aws_iam_role_policy_attachment" "this" {
+  for_each = data.aws_iam_policy.this
 
-    role       = aws_iam_role.this.id
-    policy_arn = each.value.arn
+  role       = aws_iam_role.this.id
+  policy_arn = each.value.arn
 }
 
 resource "aws_iam_role_policy_attachments_exclusive" "this" {
-  role_name    = aws_iam_role.this.name
-  policy_arns  = [for name, policy in aws_iam_role_policy_attachment.this : policy.policy_arn]
+  role_name   = aws_iam_role.this.name
+  policy_arns = [for name, policy in aws_iam_role_policy_attachment.this : policy.policy_arn]
 }
 
 # attach an instance profile to the IAM role
