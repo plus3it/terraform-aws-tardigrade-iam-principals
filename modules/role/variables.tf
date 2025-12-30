@@ -62,17 +62,6 @@ variable "managed_policies" {
   }
 }
 
-variable "managed_policy_arns" {
-  description = "List of IAM managed policy ARNs to attach to the role"
-  type        = list(string)
-  default     = []
-
-  validation {
-    condition     = length(var.managed_policy_arns) <= 20
-    error_message = "Number of managed policies exceeds role limit of 20."
-  }
-}
-
 variable "max_session_duration" {
   description = "Maximum session duration (in seconds) to set for the role. The default is one hour. This setting can have a value from 1 hour to 12 hours"
   type        = number

@@ -9,7 +9,7 @@ module "create_roles" {
   force_detach_policies = each.value.force_detach_policies
   inline_policies       = each.value.inline_policies
   instance_profile      = each.value.instance_profile
-  managed_policy_arns   = each.value.managed_policy_arns
+  managed_policies      = each.value.managed_policies
   max_session_duration  = each.value.max_session_duration
   path                  = each.value.path
   permissions_boundary  = each.value.permissions_boundary
@@ -62,7 +62,7 @@ locals {
     {
       name                  = "tardigrade-role-alpha-${local.test_id}"
       inline_policies       = local.inline_policies
-      managed_policy_arns   = local.managed_policy_arns
+      managed_policies      = local.managed_policies
       description           = "Managed by Terraform - Tardigrade test policy"
       force_detach_policies = false
       max_session_duration  = 3600
@@ -75,12 +75,12 @@ locals {
     {
       name                 = "tardigrade-role-beta-${local.test_id}"
       inline_policies      = local.inline_policies
-      managed_policy_arns  = local.managed_policy_arns
+      managed_policies     = local.managed_policies
       permissions_boundary = null
     },
     {
-      name                = "tardigrade-role-chi-${local.test_id}"
-      managed_policy_arns = local.managed_policy_arns
+      name             = "tardigrade-role-chi-${local.test_id}"
+      managed_policies = local.managed_policies
     },
     {
       name            = "tardigrade-role-delta-${local.test_id}"
@@ -123,10 +123,10 @@ locals {
         local.template_vars_base,
         {
           instance_arns = [
-            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
-            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/*",
+            "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/${random_string.this.result}",
             # Do not remove! Used to detect resource cycles, see comments above.
-            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
+            # "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/${random_string.foo.result}",
           ]
         }
       )
@@ -156,7 +156,10 @@ locals {
     },
   ]
 
-  managed_policy_arns = [for name, object in module.policies : object.policy.arn]
+  managed_policies = [for object in module.policies : {
+    name = object.policy.name
+    arn  = object.policy.arn
+  }]
 
   policy_base = {
     path        = null
@@ -174,10 +177,10 @@ locals {
   template_vars_base = {
     account_id    = data.aws_caller_identity.current.account_id
     partition     = data.aws_partition.current.partition
-    region        = data.aws_region.current.name
+    region        = data.aws_region.current.region
     random_string = random_string.this.result
     instance_arns = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:instance/*",
     ]
   }
 
@@ -187,7 +190,7 @@ locals {
     force_detach_policies = null
     inline_policies       = []
     instance_profile      = null
-    managed_policy_arns   = []
+    managed_policies      = []
     max_session_duration  = null
     path                  = null
     permissions_boundary  = module.policies["tardigrade-alpha-${local.test_id}"].policy.arn
