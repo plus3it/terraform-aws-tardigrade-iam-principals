@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+### [14.0.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/14.0.0)
+
+**Released**: 2025.01.05
+
+**Summary**:
+
+*   Bumps minimum AWS provider version to v6
+*   Removes deprecated input `managed_policy_arns` of the role module
+*   Resolves deprecation warning for `name` attribute on `aws_region` data source
+*   Resolves deprecation warning for inline and managed policy attributes on `aws_role` resource
+*   Implements new "exclusive" policy management resources for policies attached to any role, user, or group.
+
 ### [13.3.0](https://github.com/plus3it/terraform-aws-tardigrade-iam-principals/releases/tag/13.3.0)
 
 **Released**: 2025.04.02
